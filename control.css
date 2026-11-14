@@ -24,3 +24,50 @@
 .danger-action { color: #e5a0a8; border-color: rgba(210, 105, 125, .28); }
 .danger-action:hover { color: #ffdce1; border-color: rgba(230, 110, 135, .55); background: rgba(150, 45, 65, .12); }
 .danger-action:disabled { opacity: .55; cursor: wait; }
+
+
+/* Identidade com foto escolhida pelo administrador */
+.brand-group{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-avatar-button,.brand-avatar{display:grid;place-items:center;flex:0 0 auto;width:52px;height:52px;padding:0;border:1px solid rgba(190,165,235,.34);border-radius:17px;overflow:hidden;background:linear-gradient(145deg,rgba(167,139,250,.2),rgba(255,255,255,.035));color:#c9b4f5}
+.brand-avatar-button img,.brand-avatar img{width:100%;height:100%;object-fit:cover}
+.brand-avatar-button .avatar-placeholder,.brand-avatar .avatar-placeholder{font-size:25px;line-height:1}
+.login-avatar{width:76px;height:76px;border-radius:24px;margin-bottom:22px;cursor:pointer;transition:.2s}
+.login-avatar:hover{transform:translateY(-2px);border-color:#c6a9ff}
+.avatar-change-button{border:1px solid var(--line);border-radius:20px;padding:7px 10px;background:rgba(255,255,255,.045);color:#bcb2cb;font-size:10px}
+.avatar-change-button:hover{border-color:rgba(167,139,250,.5);color:#fff;background:rgba(167,139,250,.1)}
+.brand-avatar{width:44px;height:44px;border-radius:15px}
+.brand-avatar .avatar-placeholder{font-size:21px}
+.maintenance-panel{max-width:none;padding:clamp(18px,3vw,30px)}
+.maintenance-section{padding:22px 0;border-bottom:1px solid var(--line)}
+.maintenance-section:first-child{padding-top:0}
+.maintenance-section:last-of-type{border-bottom:0}
+.maintenance-section-heading{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.maintenance-section-heading h2{font:700 16px Manrope;margin:0}
+.maintenance-section-heading .eyebrow{margin:1px 0 6px}
+.maintenance-section-heading .muted{margin:5px 0 0;font-size:11px}
+.section-number{display:grid;place-items:center;flex:0 0 34px;height:34px;border:1px solid rgba(167,139,250,.22);border-radius:11px;background:rgba(167,139,250,.09);color:#c8b2f2;font:700 11px Manrope}
+.maintenance-toggle-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 19px;border:1px solid rgba(167,139,250,.2);border-radius:15px;background:linear-gradient(110deg,rgba(126,91,184,.12),rgba(255,255,255,.025))}
+.maintenance-toggle-card strong,.maintenance-toggle-card small{display:block}
+.maintenance-toggle-card strong{font:650 12px Manrope;color:#f1ebfa}
+.maintenance-toggle-card small{font-size:10px;color:var(--muted);margin-top:5px}
+.maintenance-fields-grid{display:grid;grid-template-columns:1fr 1.2fr;gap:14px}
+.maintenance-fields-grid .field{margin:0}
+.field-hint{font-size:10px;color:#8f879b;font-weight:400;margin-left:5px}
+.maintenance-editor-head{align-items:flex-start}
+.maintenance-section-heading.compact{margin:0}
+.maintenance-editor-grid{grid-template-columns:minmax(260px,.82fr) minmax(320px,1.18fr);gap:24px}
+.maintenance-controls{padding:16px;border:1px solid var(--line);border-radius:16px;background:rgba(5,5,9,.18)}
+.maintenance-controls .field{margin:0 0 17px}
+.maintenance-controls .field:last-of-type{margin-bottom:0}
+.maintenance-controls input[type=file]{width:100%;max-width:100%}
+.compact-grid{grid-template-columns:1fr 1fr;gap:12px}
+.compact-grid .field{margin:0}
+.clear-background-button{width:100%;margin-top:2px}
+.maintenance-preview{min-height:390px;aspect-ratio:4/5}
+.maintenance-preview-card{width:min(88%,390px)}
+.preview-avatar{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 16px;border:1px solid color-mix(in srgb,var(--preview-accent),transparent 35%);border-radius:20px;overflow:hidden;background:rgba(255,255,255,.06);color:var(--preview-accent);font-size:27px}
+.preview-avatar img{width:100%;height:100%;object-fit:cover}
+.maintenance-save-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-top:20px;border-top:1px solid var(--line)}
+.maintenance-save-row>span{font-size:10px;color:var(--muted)}
+.maintenance-save-row .primary{min-width:190px}
+@media(max-width:760px){.brand-group{gap:8px}.brand-avatar{width:38px;height:38px}.avatar-change-button{font-size:9px;padding:6px 8px}.maintenance-fields-grid,.maintenance-editor-grid{grid-template-columns:1fr}.maintenance-preview{min-height:280px;aspect-ratio:4/3}.maintenance-save-row{align-items:stretch;flex-direction:column}.maintenance-save-row .primary{width:100%}.maintenance-toggle-card{padding:14px}.maintenance-controls{padding:13px}}

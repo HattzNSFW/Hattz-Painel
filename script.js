@@ -1072,7 +1072,6 @@ function renderStats() {
   $("statsSectionDescription").textContent = profile.statsSubtitle || "";
   $("statsGrid").innerHTML = profile.estatisticas.map((stat) => {
     const icon = stat.icon || getStatIcon(stat.label);
-
     return `
       <article class="stat-card" data-card-glass-key="stat:${escapeHTML(stat.id)}">
         <span class="stat-icon">${escapeHTML(icon)}</span>
@@ -1081,9 +1080,6 @@ function renderStats() {
       </article>
     `;
   }).join("");
-}
-
-
   refreshCardGlassTargets();
   applyCardGlassSettings();
 }
@@ -1093,7 +1089,6 @@ function renderDetails() {
   $("detailsSectionDescription").textContent = profile.detailsSubtitle || "";
   $("detailsGrid").innerHTML = profile.detalhes.map((detail) => {
     const icon = detail.icon || getDetailIcon(detail.label);
-
     return `
       <article class="detail-card" data-card-glass-key="detail:${escapeHTML(detail.id)}">
         <span class="detail-icon">${escapeHTML(icon)}</span>
@@ -1104,9 +1099,6 @@ function renderDetails() {
       </article>
     `;
   }).join("");
-}
-
-
   refreshCardGlassTargets();
   applyCardGlassSettings();
 }

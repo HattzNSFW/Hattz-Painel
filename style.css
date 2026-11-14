@@ -95,7 +95,8 @@ button {
 .card-background-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, #0b091080, #0b0910b8 42%, #0b0910d9);
+  /* Mantém a mídia de fundo visível por trás das superfícies de vidro. */
+  background: linear-gradient(180deg, #0b091040, #0b09106b 42%, #0b091087);
 }
 
 .profile-card > .banner,
@@ -3875,19 +3876,56 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub: vidro realmente translúcido — menos pigmento escuro,
-   mantendo o mesmo blur e a mesma saturação da faixa de áudio. */
+/* Glass Hub · Liquid Glass real.
+   Todos os valores vêm do Card Lab (global ou por cartão); nada fica travado aqui. */
 .stat-card,
 .detail-card {
-  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
-  background: color-mix(in srgb, var(--card) 12%, transparent);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  backdrop-filter: blur(24px) saturate(150%);
-  box-shadow: 0 12px 38px #0005, inset 0 1px 0 #ffffff18;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border: 1px solid color-mix(
+    in srgb,
+    var(--text) calc(12% + var(--glass-border, 30%) * .22),
+    transparent
+  );
+  border-radius: var(--glass-radius, var(--card-radius, 16px));
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, #ffffff var(--glass-shine, 12%), transparent),
+      transparent 48%
+    ),
+    color-mix(in srgb, var(--card) var(--glass-opacity, 18%), transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
+  box-shadow:
+    0 12px 34px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
+    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 14%), transparent);
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 .stat-card::after,
 .detail-card::after {
-  content: none;
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, #fff var(--glass-reflection, 14%), transparent),
+    transparent 38%,
+    transparent 76%,
+    color-mix(in srgb, #beaaff calc(var(--glass-reflection, 14%) * .24), transparent)
+  );
+}
+.stat-card > *,
+.detail-card > * {
+  position: relative;
+  z-index: 1;
 }
 .card-lab {
   border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
@@ -3970,4 +4008,13 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   .avatar-frame *,
   .stat-card,
   .detail-card { transition: none !important; animation: none !important; }
+}
+
+
+/* Garante que as superfícies do Glass Hub nunca voltem ao fundo sólido antigo. */
+.profile-content .stat-card,
+.profile-content .detail-card {
+  background-color: transparent;
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
 }

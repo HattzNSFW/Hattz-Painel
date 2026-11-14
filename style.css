@@ -3862,3 +3862,121 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   color: #eadfff;
   box-shadow: 0 0 10px #a78bfa30, inset 0 0 8px #d9c6ff12;
 }
+
+
+/* HÄTTZ VISUAL REFINEMENT — restrained glass + premium avatar frames */
+:root {
+  --glass-opacity: 18%;
+  --glass-blur: 10px;
+  --glass-shine: 12%;
+  --glass-reflection: 14%;
+  --glass-border: 30%;
+  --glass-shadow: 34%;
+  --glass-radius: 16px;
+}
+
+/* Glass Hub: menos efeito translúcido, mais superfície escura e legível. */
+.stat-card,
+.detail-card {
+  border-color: color-mix(in srgb, var(--border) 78%, #ffffff 22%);
+  background:
+    linear-gradient(145deg,
+      color-mix(in srgb, #ffffff calc(var(--glass-shine) * .42), transparent),
+      transparent 62%),
+    color-mix(in srgb, var(--card) calc(100% - var(--glass-opacity) * .38), #111015);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * .58)) saturate(112%);
+  backdrop-filter: blur(calc(var(--glass-blur) * .58)) saturate(112%);
+  box-shadow:
+    0 10px 26px color-mix(in srgb, #000000 calc(var(--glass-shadow) * .7), transparent),
+    inset 0 1px 0 color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .45), transparent);
+}
+.stat-card::after,
+.detail-card::after {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .42), transparent),
+    transparent 38%,
+    transparent 78%,
+    color-mix(in srgb, #beaaff 3%, transparent));
+}
+.card-lab {
+  border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);
+  background: color-mix(in srgb, var(--card) 94%, #0b0a0e);
+}
+.card-lab-icon {
+  border-color: #c4b2ff24;
+  background: #ffffff08;
+  box-shadow: none;
+}
+
+/* Molduras: o desenho da peça é o protagonista; raridade aparece no acabamento,
+   não em anéis luminosos girando ou pulsando sem parar. */
+.avatar-frame::before {
+  animation: none !important;
+  opacity: 0 !important;
+  filter: none !important;
+}
+.avatar-frame .ring-main,
+.avatar-frame .ring-secondary,
+.avatar-frame .fine-line,
+.avatar-frame .ornament {
+  animation: none !important;
+  transition: filter .2s ease, opacity .2s ease;
+}
+.avatar-frame .ring-main {
+  stroke-width: 1.8;
+  filter: drop-shadow(0 1px 1px #000b);
+}
+.avatar-frame .ring-secondary {
+  opacity: .58;
+  stroke-width: .85;
+}
+.avatar-frame .fine-line {
+  stroke-width: 1.55;
+  filter: none;
+}
+.avatar-frame .ornament {
+  filter: none;
+}
+.avatar-frame .frame-detail-ring { opacity: .62; }
+.avatar-frame .frame-detail-dots { opacity: .34; }
+.avatar-frame .frame-detail-ticks { opacity: .72; }
+.avatar-frame .frame-detail-star,
+.avatar-frame .frame-detail-stone {
+  filter: drop-shadow(0 1px 2px #0009);
+}
+
+/* Common: metal acetinado e discreto. */
+.avatar-frame.rarity-common .ring-main,
+.avatar-frame.rarity-common .ornament {
+  filter: drop-shadow(0 1px 1px #0009);
+  opacity: .86;
+}
+/* Rare: contorno frio com leve contraste. */
+.avatar-frame.rarity-rare .ring-main,
+.avatar-frame.rarity-rare .ring-secondary {
+  filter: drop-shadow(0 0 1.5px #83bfff66);
+}
+/* Epic: metal violeta/prateado, sem brilho pulsante. */
+.avatar-frame.rarity-epic .ring-main,
+.avatar-frame.rarity-epic .ornament {
+  filter: drop-shadow(0 0 2px #a78bfa66);
+}
+/* Legendary: dourado polido com sombra curta, sem halo exagerado. */
+.avatar-frame.rarity-legendary .ring-main,
+.avatar-frame.rarity-legendary .ornament {
+  filter: drop-shadow(0 0 2px #e9c46a77);
+  opacity: 1;
+}
+.avatar-frame.custom-frame-color::before {
+  display: none !important;
+}
+.avatar-frame.custom-frame-color .ring-main,
+.avatar-frame.custom-frame-color .ring-secondary,
+.avatar-frame.custom-frame-color .fine-line {
+  filter: drop-shadow(0 1px 1px #0009);
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-frame *,
+  .stat-card,
+  .detail-card { transition: none !important; animation: none !important; }
+}

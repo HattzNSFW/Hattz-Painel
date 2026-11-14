@@ -11,6 +11,31 @@ const PROFILE_IDS = ["perfil-1", "perfil-2"];
 const requestedProfileId = new URLSearchParams(window.location.search).get("profile");
 const ACTIVE_PROFILE_ID = PROFILE_IDS.includes(requestedProfileId) ? requestedProfileId : "perfil-1";
 const OTHER_PROFILE_ID = ACTIVE_PROFILE_ID === "perfil-1" ? "perfil-2" : "perfil-1";
+const SHARED_PROFILE_CODE = new URLSearchParams(window.location.search).get("share") || "";
+const IS_PUBLIC_VIEW = Boolean(SHARED_PROFILE_CODE);
+const SHARE_MEDIA_KEYS = ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"];
+const SHARE_OWNER_TOKEN_KEY = `hattz-share-owner:${ACTIVE_PROFILE_ID}`;
+const SHARE_PUBLIC_CODE_KEY = `hattz-share-code:${ACTIVE_PROFILE_ID}`;
+let sharedMediaManifest = [];
+let sharedProfileLoaded = false;
+let sharedProfileLoadError = "";
+
+function getShareApiBase() {
+  const configured = window.HATTZ_SHARE_CONFIG?.apiBase || "";
+  return String(configured).trim().replace(/\/+$/, "");
+}
+
+function normalizePublicCode(value) {
+  return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^HTZ/, "");
+}
+
+function buildPublicProfileUrl(code) {
+  const target = new URL(window.location.href);
+  target.searchParams.delete("profile");
+  target.searchParams.set("share", code);
+  return target.toString();
+}
+
 
 function getProfileStorageKey(profileId = ACTIVE_PROFILE_ID) {
   return `${STORAGE_KEY}:${profileId}`;
@@ -166,6 +191,7 @@ function openDatabase() {
 }
 
 function saveMedia(key, file) {
+  if (IS_PUBLIC_VIEW) return Promise.reject(new Error("Este perfil é somente para visualização."));
   return new Promise((resolve, reject) => {
     if (!db) {
       reject(new Error("Banco de dados não inicializado."));
@@ -204,6 +230,7 @@ async function getMedia(key) {
 }
 
 function deleteMedia(key) {
+  if (IS_PUBLIC_VIEW) return Promise.reject(new Error("Este perfil é somente para visualização."));
   return new Promise((resolve, reject) => {
     if (!db) return resolve();
 
@@ -255,6 +282,7 @@ function showToast(message) {
 }
 
 function saveProfile() {
+  if (IS_PUBLIC_VIEW) return false;
   localStorage.setItem(getProfileStorageKey(), JSON.stringify(profile));
   updateProfileSwitcher();
 }
@@ -265,6 +293,77 @@ function normalizeUsername(value) {
     .replace(/^@+/, "")
     .replace(/\s+/g, "")
     .toLowerCase();
+}
+
+function normalizeProfileData(parsed) {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error("Dados de perfil inválidos.");
+  }
+
+  const normalized = {
+    ...structuredClone(DEFAULT_PROFILE),
+    ...parsed,
+    cores: { ...DEFAULT_PROFILE.cores, ...(parsed.cores || {}) },
+    estatisticas: Array.isArray(parsed.estatisticas)
+      ? parsed.estatisticas.slice(0, 40)
+      : structuredClone(DEFAULT_PROFILE.estatisticas),
+    detalhes: Array.isArray(parsed.detalhes)
+      ? parsed.detalhes.slice(0, 60)
+      : Array.isArray(parsed.informacoes)
+        ? parsed.informacoes.slice(0, 60)
+        : structuredClone(DEFAULT_PROFILE.detalhes),
+    insignias: Array.isArray(parsed.insignias) ? parsed.insignias.slice(0, 24) : []
+  };
+
+  normalized.avatarPausado = Boolean(parsed.avatarPausado);
+  normalized.bannerPausado = Boolean(parsed.bannerPausado);
+  normalized.bannerHeight = Number.isFinite(Number(parsed.bannerHeight))
+    ? Math.min(620, Math.max(240, Number(parsed.bannerHeight))) : 355;
+
+  for (const key of ["avatarCrop", "bannerCrop", "cardBackgroundCrop", "backgroundCrop", "musicBarBackgroundCrop"]) {
+    const crop = parsed[key] || {};
+    normalized[key] = {
+      x: Math.min(100, Math.max(0, Number(crop.x ?? 50))),
+      y: Math.min(100, Math.max(0, Number(crop.y ?? 50))),
+      zoom: Math.min(key === "musicBarBackgroundCrop" ? 300 : 250, Math.max(100, Number(crop.zoom ?? 100)))
+    };
+  }
+
+  normalized.dividerStyle = ["none", "minimal", "double", "dotted", "ornamental", "celestial", "gothic", "royal"].includes(parsed.dividerStyle) ? parsed.dividerStyle : "ornamental";
+  normalized.dividerCustomColorEnabled = Boolean(parsed.dividerCustomColorEnabled);
+  normalized.dividerColor = /^#[0-9a-f]{6}$/i.test(parsed.dividerColor || "") ? parsed.dividerColor : "#a78bfa";
+  if (!["none", "celestial", "gothic", "royal", "floral", "ornate", "dark", "halo", "vintage"].includes(normalized.moldura)) normalized.moldura = "celestial";
+  normalized.fundoPausado = Boolean(parsed.fundoPausado);
+  normalized.cardBackgroundPausado = Boolean(parsed.cardBackgroundPausado);
+  if (String(normalized.bannerTitulo || "").trim().toUpperCase() === "PERSONAL SPACE") normalized.bannerTitulo = "";
+  normalized.statsTitle = String(parsed.statsTitle ?? DEFAULT_PROFILE.statsTitle).slice(0, 80);
+  normalized.statsSubtitle = String(parsed.statsSubtitle ?? DEFAULT_PROFILE.statsSubtitle).slice(0, 180);
+  normalized.detailsTitle = String(parsed.detailsTitle ?? DEFAULT_PROFILE.detailsTitle).slice(0, 80);
+  normalized.detailsSubtitle = String(parsed.detailsSubtitle ?? DEFAULT_PROFILE.detailsSubtitle).slice(0, 180);
+  normalized.raridadeMoldura = parsed.raridadeMoldura || "none";
+  normalized.molduraCorPersonalizada = Boolean(parsed.molduraCorPersonalizada);
+  normalized.molduraCor = /^#[0-9a-f]{6}$/i.test(parsed.molduraCor || "") ? parsed.molduraCor : "#a78bfa";
+  normalized.verificadoCor = /^#[0-9a-f]{6}$/i.test(parsed.verificadoCor || "") ? parsed.verificadoCor : DEFAULT_PROFILE.verificadoCor;
+
+  for (const key of ["bannerOpacity", "cardBackgroundOpacity", "backgroundOpacity", "musicBarBackgroundOpacity"]) {
+    const fallback = Number(DEFAULT_PROFILE[key]);
+    const value = Number(parsed[key]);
+    normalized[key] = Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : fallback;
+  }
+
+  normalized.musicPlayerWidth = Math.min(620, Math.max(220, Number(parsed.musicPlayerWidth) || DEFAULT_PROFILE.musicPlayerWidth));
+  normalized.musicPlayerHeight = Math.min(220, Math.max(56, Number(parsed.musicPlayerHeight) || DEFAULT_PROFILE.musicPlayerHeight));
+  normalized.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
+  normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
+
+  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
+  if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
+  normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
+
+  if (typeof parsed.animarMidia !== "boolean") {
+    normalized.animarMidia = typeof parsed.animarAvatar === "boolean" ? parsed.animarAvatar : true;
+  }
+  return normalized;
 }
 
 function loadProfile() {
@@ -278,91 +377,53 @@ function loadProfile() {
       return;
     }
 
-    // Copy the old single-profile data into the new profile-1 slot without deleting the original.
+    // Keep legacy profile-1 data intact while migrating it to the scoped key.
     if (!localStorage.getItem(scopedKey) && legacySaved) {
       localStorage.setItem(scopedKey, legacySaved);
     }
-
-    const parsed = JSON.parse(saved);
-
-    profile = {
-      ...structuredClone(DEFAULT_PROFILE),
-      ...parsed,
-
-      cores: {
-        ...DEFAULT_PROFILE.cores,
-        ...(parsed.cores || {})
-      },
-
-      estatisticas: Array.isArray(parsed.estatisticas)
-        ? parsed.estatisticas
-        : structuredClone(DEFAULT_PROFILE.estatisticas),
-
-      detalhes: Array.isArray(parsed.detalhes)
-        ? parsed.detalhes
-        : Array.isArray(parsed.informacoes)
-          ? parsed.informacoes
-          : structuredClone(DEFAULT_PROFILE.detalhes),
-
-      insignias: Array.isArray(parsed.insignias)
-        ? parsed.insignias
-        : []
-    };
-    profile.avatarPausado = Boolean(parsed.avatarPausado);
-    profile.bannerPausado = Boolean(parsed.bannerPausado);
-    profile.bannerHeight = Number.isFinite(Number(parsed.bannerHeight)) ? Math.min(620, Math.max(240, Number(parsed.bannerHeight))) : 355;
-    for (const key of ["avatarCrop", "bannerCrop", "cardBackgroundCrop", "backgroundCrop", "musicBarBackgroundCrop"]) {
-      const crop = parsed[key] || {};
-      profile[key] = {
-        x: Math.min(100, Math.max(0, Number(crop.x ?? 50))),
-        y: Math.min(100, Math.max(0, Number(crop.y ?? 50))),
-        zoom: Math.min(key === "musicBarBackgroundCrop" ? 300 : 250, Math.max(100, Number(crop.zoom ?? 100)))
-      };
-    }
-    profile.dividerStyle = ["none", "minimal", "double", "dotted", "ornamental", "celestial", "gothic", "royal"].includes(parsed.dividerStyle) ? parsed.dividerStyle : "ornamental";
-    profile.dividerCustomColorEnabled = Boolean(parsed.dividerCustomColorEnabled);
-    profile.dividerColor = /^#[0-9a-f]{6}$/i.test(parsed.dividerColor || "") ? parsed.dividerColor : "#a78bfa";
-    if (!["none", "celestial", "gothic", "royal", "floral", "ornate", "dark", "halo", "vintage"].includes(profile.moldura)) profile.moldura = "celestial";
-    profile.fundoPausado = Boolean(parsed.fundoPausado);
-    profile.cardBackgroundPausado = Boolean(parsed.cardBackgroundPausado);
-    if (String(profile.bannerTitulo || "").trim().toUpperCase() === "PERSONAL SPACE") profile.bannerTitulo = "";
-    profile.statsTitle = String(parsed.statsTitle ?? DEFAULT_PROFILE.statsTitle);
-    profile.statsSubtitle = String(parsed.statsSubtitle ?? DEFAULT_PROFILE.statsSubtitle);
-    profile.detailsTitle = String(parsed.detailsTitle ?? DEFAULT_PROFILE.detailsTitle);
-    profile.detailsSubtitle = String(parsed.detailsSubtitle ?? DEFAULT_PROFILE.detailsSubtitle);
-    profile.raridadeMoldura = parsed.raridadeMoldura || "none";
-    profile.molduraCorPersonalizada = Boolean(parsed.molduraCorPersonalizada);
-    profile.molduraCor = /^#[0-9a-f]{6}$/i.test(parsed.molduraCor || "") ? parsed.molduraCor : "#a78bfa";
-    profile.verificadoCor = /^#[0-9a-f]{6}$/i.test(parsed.verificadoCor || "") ? parsed.verificadoCor : DEFAULT_PROFILE.verificadoCor;
-    for (const key of ["bannerOpacity", "cardBackgroundOpacity", "backgroundOpacity", "musicBarBackgroundOpacity"]) {
-      const fallback = Number(DEFAULT_PROFILE[key]);
-      const value = Number(parsed[key]);
-      profile[key] = Number.isFinite(value) ? Math.min(100, Math.max(0, value)) : fallback;
-    }
-    profile.musicPlayerWidth = Math.min(620, Math.max(220, Number(parsed.musicPlayerWidth) || DEFAULT_PROFILE.musicPlayerWidth));
-    profile.musicPlayerHeight = Math.min(220, Math.max(56, Number(parsed.musicPlayerHeight) || DEFAULT_PROFILE.musicPlayerHeight));
-    profile.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
-    profile.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
-
-    const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
-    if (reservedRoles.test(String(profile.cargo || "").trim())) profile.cargo = "";
-
-    profile.insignias = [...new Set(profile.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
-
-    if (typeof parsed.animarMidia !== "boolean") {
-      profile.animarMidia =
-        typeof parsed.animarAvatar === "boolean"
-          ? parsed.animarAvatar
-          : true;
-    }
-
+    profile = normalizeProfileData(JSON.parse(saved));
   } catch (error) {
     console.error("Erro ao carregar perfil:", error);
     profile = structuredClone(DEFAULT_PROFILE);
   }
 }
 
+async function loadSharedProfile() {
+  const apiBase = getShareApiBase();
+  const code = normalizePublicCode(SHARED_PROFILE_CODE);
+  if (!apiBase || apiBase.includes("YOUR-WORKER")) {
+    throw new Error("A API ainda não foi configurada no arquivo share-config.js.");
+  }
+  if (code.length !== 10) throw new Error("Código de perfil inválido.");
+
+  const response = await fetch(`${apiBase}/api/profiles/${encodeURIComponent(code)}`, {
+    method: "GET",
+    headers: { "Accept": "application/json" },
+    cache: "no-store"
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(data.error || "Não foi possível localizar este perfil.");
+  profile = normalizeProfileData(data.profile);
+  sharedMediaManifest = Array.isArray(data.media) ? data.media : [];
+  sharedProfileLoaded = true;
+}
+
+function createSharedMediaReference(entry) {
+  const apiBase = getShareApiBase();
+  const code = normalizePublicCode(SHARED_PROFILE_CODE);
+  const key = String(entry.key || "");
+  if (!SHARE_MEDIA_KEYS.includes(key)) return null;
+  return {
+    name: String(entry.fileName || key),
+    type: String(entry.contentType || "application/octet-stream"),
+    size: Number(entry.sizeBytes || 0),
+    lastModified: Number(entry.lastModified || 0),
+    remoteUrl: `${apiBase}/api/profiles/${encodeURIComponent(code)}/media/${encodeURIComponent(key)}?v=${encodeURIComponent(String(entry.updatedAt || 0))}`
+  };
+}
+
 function updateProfileSwitcher() {
+  if (IS_PUBLIC_VIEW) return;
   const button = $("openOtherProfile");
   const label = $("openOtherProfileLabel");
   if (!button || !label) return;
@@ -974,9 +1035,12 @@ function renderProfile() {
 }
 
 function revokeURL(url) {
-  if (url) {
-    URL.revokeObjectURL(url);
-  }
+  if (typeof url === "string" && url.startsWith("blob:")) URL.revokeObjectURL(url);
+}
+
+function createMediaURL(file) {
+  if (file && typeof file.remoteUrl === "string") return file.remoteUrl;
+  return URL.createObjectURL(file);
 }
 
 
@@ -1275,7 +1339,7 @@ function displayAvatar(file) {
   updateCropPreview("avatar", file);
 
   revokeURL(avatarURL);
-  avatarURL = URL.createObjectURL(file);
+  avatarURL = createMediaURL(file);
 
   if (getVisualMediaKind(file) === "video") {
     prepareVideo($("avatarVideo"));
@@ -1305,7 +1369,7 @@ function displayBanner(file) {
   clearBanner();
   updateCropPreview("banner", file);
   revokeURL(bannerURL);
-  bannerURL = URL.createObjectURL(file);
+  bannerURL = createMediaURL(file);
 
   if (getVisualMediaKind(file) === "video") {
     const video = $("bannerVideo");
@@ -1336,7 +1400,7 @@ function displayBackground(file) {
   clearBackground();
   updateCropPreview("background", file);
   revokeURL(backgroundURL);
-  backgroundURL = URL.createObjectURL(file);
+  backgroundURL = createMediaURL(file);
 
   if (getVisualMediaKind(file) === "video") {
     const video = $("backgroundVideo");
@@ -1371,7 +1435,7 @@ function displayCardBackground(file) {
   document.body.classList.add("has-card-background");
   updateCropPreview("cardBackground", file);
   revokeURL(cardBackgroundURL);
-  cardBackgroundURL = URL.createObjectURL(file);
+  cardBackgroundURL = createMediaURL(file);
 
   if (getVisualMediaKind(file) === "video") {
     const video = $("cardBackgroundVideo");
@@ -1568,7 +1632,7 @@ function displayMusicBarBackground(file) {
   clearMusicBarBackground();
   updateCropPreview("musicBarBackground", file);
   revokeURL(musicBarBackgroundURL);
-  musicBarBackgroundURL = file ? URL.createObjectURL(file) : null;
+  musicBarBackgroundURL = file ? createMediaURL(file) : null;
   if (!file || !musicBarBackgroundURL) {
     const name = $("musicBarBackgroundName");
     if (name) name.textContent = "Nenhum fundo personalizado selecionado.";
@@ -1652,7 +1716,7 @@ function updateCropPreview(key, file) {
 
   image.hidden = true;
   video.hidden = true;
-  [image.dataset.previewUrl, video.dataset.previewUrl].filter(Boolean).forEach((url) => URL.revokeObjectURL(url));
+  [image.dataset.previewUrl, video.dataset.previewUrl].filter(Boolean).forEach(revokeURL);
   delete image.dataset.previewUrl;
   delete video.dataset.previewUrl;
   image.removeAttribute("src");
@@ -1667,7 +1731,7 @@ function updateCropPreview(key, file) {
   }
 
   if (selection) selection.hidden = false;
-  const previewURL = URL.createObjectURL(file);
+  const previewURL = createMediaURL(file);
   image.dataset.previewUrl = previewURL;
   video.dataset.previewUrl = previewURL;
 
@@ -1747,17 +1811,27 @@ function resetCrop(key) {
 }
 
 async function restoreMedia() {
-  const keys = ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"];
-  const records = await Promise.all(keys.map(async (key) => {
-    try {
-      return await getMedia(key);
-    } catch (error) {
-      console.warn(`Não foi possível restaurar a mídia "${key}".`, error);
-      return null;
-    }
-  }));
-  const [avatar, banner, background, cardBackground, music, musicCover, musicBarBackground] = records;
+  const keys = SHARE_MEDIA_KEYS;
+  let records;
 
+  if (IS_PUBLIC_VIEW) {
+    const manifest = new Map(sharedMediaManifest.map((entry) => [entry.key, entry]));
+    records = keys.map((key) => {
+      const entry = manifest.get(key);
+      return entry ? createSharedMediaReference(entry) : null;
+    });
+  } else {
+    records = await Promise.all(keys.map(async (key) => {
+      try {
+        return await getMedia(key);
+      } catch (error) {
+        console.warn(`Não foi possível restaurar a mídia "${key}".`, error);
+        return null;
+      }
+    }));
+  }
+
+  const [avatar, banner, background, cardBackground, music, musicCover, musicBarBackground] = records;
   if (avatar) displayAvatar(avatar);
   if (banner) displayBanner(banner);
   if (background) displayBackground(background);
@@ -2001,7 +2075,7 @@ function setMusicPlayerPosition(docked) {
 function displayMusicCover(file) {
   currentMusicCoverFile = file || null;
   revokeURL(musicCoverURL);
-  musicCoverURL = file ? URL.createObjectURL(file) : null;
+  musicCoverURL = file ? createMediaURL(file) : null;
   const image = $("musicCoverImage");
   const fallback = $("musicCoverFallback");
   const name = $("musicCoverName");
@@ -2015,7 +2089,7 @@ function displayMusic(file) {
   const isVideo = file.type?.startsWith("video/") || /\.(mp4|webm|mov|ogv|m4v)$/i.test(file.name || "");
   musicMediaType = isVideo ? "video" : "audio";
   revokeURL(musicURL);
-  musicURL = URL.createObjectURL(file);
+  musicURL = createMediaURL(file);
 
   const audio = $("profileAudio");
   const video = $("profileVideo");
@@ -2042,8 +2116,8 @@ function displayMusic(file) {
     video.removeAttribute("src");
   }
 
-  $("downloadMusic").disabled = false;
-  $("downloadMusic").textContent = "Baixar arquivo original";
+  $("downloadMusic").disabled = Boolean(file.remoteUrl);
+  $("downloadMusic").textContent = file.remoteUrl ? "Arquivo compartilhado" : "Baixar arquivo original";
   $("musicTrackName").textContent = (file.name || (isVideo ? "Meu vídeo" : "Minha música")).replace(/\.[^/.]+$/, "");
   $("profileMusic").hidden = false;
   setMusicPlayerPosition(false);
@@ -2489,6 +2563,7 @@ function readIdentityEditor() {
 }
 
 function openEditor() {
+  if (IS_PUBLIC_VIEW) return;
   fillEditor();
 
   $("editorModal").classList.add("open");
@@ -2515,6 +2590,7 @@ function switchTab(name) {
 }
 
 function saveChanges() {
+  if (IS_PUBLIC_VIEW) return;
   readIdentityEditor();
 
   profile.animarMidia = $("animateMedia").checked;
@@ -2968,7 +3044,14 @@ async function exportProfileBackup() {
       version: 1,
       exportedAt: new Date().toISOString(),
       profile,
-      media
+      media,
+      // Credentials appear only in the owner's manually exported backup.
+      // They are never sent to public viewers or included in public profile JSON.
+      share: {
+        profileId: ACTIVE_PROFILE_ID,
+        code: getSavedShareCode(),
+        ownerToken: getSavedOwnerToken()
+      }
     };
 
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json" });
@@ -3020,6 +3103,16 @@ async function importProfileBackup(event) {
       }
     }
 
+    // Share credentials belong to one profile slot; never move them into the other slot.
+    if (backup.share && backup.share.profileId === ACTIVE_PROFILE_ID) {
+      const code = String(backup.share.code || "").trim();
+      const ownerToken = String(backup.share.ownerToken || "").trim();
+      if (/^HTZ-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}$/.test(code) && /^[A-Za-z0-9_-]{40,100}$/.test(ownerToken)) {
+        localStorage.setItem(SHARE_PUBLIC_CODE_KEY, code);
+        localStorage.setItem(SHARE_OWNER_TOKEN_KEY, ownerToken);
+      }
+    }
+
     revokeURL(avatarURL);
     revokeURL(bannerURL);
     revokeURL(backgroundURL);
@@ -3049,11 +3142,252 @@ async function importProfileBackup(event) {
   }
 }
 
+
+const SHARE_MAX_MEDIA_BYTES = 50 * 1024 * 1024;
+
+function generateOwnerToken() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  let binary = "";
+  bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function getSavedShareCode() {
+  return localStorage.getItem(SHARE_PUBLIC_CODE_KEY) || "";
+}
+
+function getSavedOwnerToken() {
+  return localStorage.getItem(SHARE_OWNER_TOKEN_KEY) || "";
+}
+
+function setShareStatus(message, isError = false) {
+  const status = $("sharePublishStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.classList.toggle("is-error", Boolean(isError));
+}
+
+function updateShareManagerFields() {
+  const code = getSavedShareCode();
+  const token = getSavedOwnerToken();
+  const codeInput = $("shareCodeOutput");
+  const linkInput = $("shareLinkOutput");
+  const tokenInput = $("shareOwnerTokenOutput");
+  const ownerPanel = $("shareOwnerPanel");
+  const resultPanel = $("shareResultPanel");
+  if (codeInput) codeInput.value = code;
+  if (linkInput) linkInput.value = code ? buildPublicProfileUrl(code) : "";
+  if (tokenInput) tokenInput.value = token;
+  if (ownerPanel) ownerPanel.hidden = !token;
+  if (resultPanel) resultPanel.hidden = !code;
+  const unpublishButton = $("unpublishProfileButton");
+  if (unpublishButton) unpublishButton.hidden = !code || !token;
+  const status = $("shareApiStatus");
+  const apiBase = getShareApiBase();
+  if (status) {
+    status.textContent = apiBase && !apiBase.includes("YOUR-WORKER")
+      ? `API configurada: ${apiBase}`
+      : "Configure a URL do Worker em share-config.js para ativar o compartilhamento.";
+    status.classList.toggle("is-warning", !apiBase || apiBase.includes("YOUR-WORKER"));
+  }
+}
+
+function openShareManager() {
+  if (IS_PUBLIC_VIEW) return;
+  updateShareManagerFields();
+  setShareStatus("Publique seu perfil para gerar um código de visualização.");
+  $("shareModal").classList.add("open");
+  $("shareModal").setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeShareManager() {
+  $("shareModal").classList.remove("open");
+  $("shareModal").setAttribute("aria-hidden", "true");
+  if (!$("editorModal").classList.contains("open")) document.body.style.overflow = "";
+}
+
+async function shareApiRequest(path, options = {}, ownerToken = "") {
+  const apiBase = getShareApiBase();
+  if (!apiBase || apiBase.includes("YOUR-WORKER")) {
+    throw new Error("Configure a URL do Worker no arquivo share-config.js e publique esse arquivo no GitHub Pages.");
+  }
+
+  const headers = new Headers(options.headers || {});
+  if (ownerToken) headers.set("Authorization", `Bearer ${ownerToken}`);
+  const response = await fetch(`${apiBase}${path}`, { ...options, headers });
+  const contentType = response.headers.get("content-type") || "";
+  const data = contentType.includes("application/json") ? await response.json().catch(() => ({})) : {};
+  if (!response.ok) throw new Error(data.error || `Falha na API (${response.status}).`);
+  return data;
+}
+
+async function copyShareValue(inputId, label) {
+  const value = $(inputId)?.value || "";
+  if (!value) return showToast("Ainda não há conteúdo para copiar.");
+  try {
+    await navigator.clipboard.writeText(value);
+    showToast(`${label} copiado.`);
+  } catch {
+    const input = $(inputId);
+    input.focus(); input.select();
+    showToast("Selecione e copie o conteúdo manualmente.");
+  }
+}
+
+function openSharedProfileByCode() {
+  const input = $("shareLookupCode");
+  const code = normalizePublicCode(input?.value);
+  if (code.length !== 10) {
+    setShareStatus("Digite um código válido, no formato HTZ-ABCDE-FGHIJ.", true);
+    return;
+  }
+  window.open(buildPublicProfileUrl(`HTZ-${code.slice(0, 5)}-${code.slice(5)}`), "_blank", "noopener,noreferrer");
+}
+
+async function publishProfile() {
+  if (IS_PUBLIC_VIEW) return;
+  const button = $("publishProfileButton");
+  button.disabled = true;
+  const originalLabel = button.textContent;
+  button.textContent = "Publicando...";
+
+  try {
+    let code = getSavedShareCode();
+    let ownerToken = getSavedOwnerToken();
+    if (code && !ownerToken) {
+      throw new Error("A chave privada deste perfil não está neste navegador. Importe o backup que contém a chave privada; o código público não permite recuperar permissão de edição.");
+    }
+    if (!code) {
+      ownerToken ||= generateOwnerToken();
+      // Persist the private token before the request so a lost response can be retried safely.
+      localStorage.setItem(SHARE_OWNER_TOKEN_KEY, ownerToken);
+    }
+
+    if (!code) {
+      setShareStatus("Criando o perfil compartilhável...");
+      const created = await shareApiRequest("/api/profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ownerToken, profile })
+      });
+      code = created.code;
+      localStorage.setItem(SHARE_PUBLIC_CODE_KEY, code);
+      localStorage.setItem(SHARE_OWNER_TOKEN_KEY, ownerToken);
+      updateShareManagerFields();
+    } else {
+      setShareStatus("Atualizando as informações do perfil...");
+      await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ profile })
+      }, ownerToken);
+    }
+
+    const current = await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}`);
+    const remoteByKey = new Map((current.media || []).map((entry) => [entry.key, entry]));
+    let completed = 0;
+    let total = SHARE_MEDIA_KEYS.length;
+
+    for (const key of SHARE_MEDIA_KEYS) {
+      const localFile = await getMedia(key);
+      const remote = remoteByKey.get(key);
+
+      if (!localFile && remote) {
+        setShareStatus(`Removendo mídia antiga: ${key}...`);
+        await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}/media/${encodeURIComponent(key)}`, {
+          method: "DELETE"
+        }, ownerToken);
+        completed++;
+        continue;
+      }
+      if (!localFile) { completed++; continue; }
+      if (localFile.size > SHARE_MAX_MEDIA_BYTES) {
+        throw new Error(`${localFile.name || key} ultrapassa o limite de 75 MB por arquivo para compartilhamento. A cópia local foi preservada.`);
+      }
+
+      const fileName = localFile.name || `${key}.${(localFile.type || "application/octet-stream").split("/").pop()}`;
+      const lastModified = Number(localFile.lastModified || 0);
+      const sameFile = remote && Number(remote.sizeBytes) === Number(localFile.size) &&
+        remote.fileName === fileName && Number(remote.lastModified || 0) === lastModified;
+      if (!sameFile) {
+        setShareStatus(`Enviando ${fileName} (${completed + 1}/${total})...`);
+        await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}/media/${encodeURIComponent(key)}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": localFile.type || "application/octet-stream",
+            "X-File-Name": encodeURIComponent(fileName),
+            "X-File-Modified": String(lastModified)
+          },
+          body: localFile
+        }, ownerToken);
+      }
+      completed++;
+    }
+
+    setShareStatus("Finalizando publicação do perfil...");
+    await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ profile })
+    }, ownerToken);
+
+    updateShareManagerFields();
+    setShareStatus(`Perfil publicado com sucesso. ${completed}/${total} itens verificados. Compartilhe o código ou o link público.`);
+    showToast("Perfil publicado no Hättz Share.");
+  } catch (error) {
+    console.error("Erro ao publicar perfil:", error);
+    setShareStatus(error.message || "Não foi possível publicar o perfil.", true);
+  } finally {
+    button.disabled = false;
+    button.textContent = originalLabel;
+  }
+}
+
+async function unpublishProfile() {
+  const code = getSavedShareCode();
+  const token = getSavedOwnerToken();
+  if (!code || !token) return;
+  if (!confirm("Despublicar este perfil? O link público deixará de funcionar e os arquivos remotos serão removidos. Seus dados locais continuarão intactos.")) return;
+  try {
+    await shareApiRequest(`/api/profiles/${encodeURIComponent(code)}`, { method: "DELETE" }, token);
+    localStorage.removeItem(SHARE_PUBLIC_CODE_KEY);
+    localStorage.removeItem(SHARE_OWNER_TOKEN_KEY);
+    updateShareManagerFields();
+    setShareStatus("Perfil despublicado. Seus dados locais foram preservados.");
+  } catch (error) {
+    setShareStatus(error.message || "Não foi possível despublicar o perfil.", true);
+  }
+}
+
+function activateReadOnlyView() {
+  document.body.classList.add("public-profile-view");
+  ["openEditor", "openOtherProfile", "openShareManager"].forEach((id) => {
+    const button = $(id);
+    if (button) button.hidden = true;
+  });
+  const captureButton = $("toggleCaptureMode");
+  if (captureButton) captureButton.hidden = false;
+}
+
 function setupEvents() {
   $("openOtherProfile").addEventListener("click", openOtherProfile);
+  $("openShareManager").addEventListener("click", openShareManager);
+  $("closeShareModal").addEventListener("click", closeShareManager);
+  $("shareModal").addEventListener("click", (event) => {
+    if (event.target === $("shareModal")) closeShareManager();
+  });
+  $("publishProfileButton").addEventListener("click", publishProfile);
+  $("copyShareCode").addEventListener("click", () => copyShareValue("shareCodeOutput", "Código"));
+  $("copyShareLink").addEventListener("click", () => copyShareValue("shareLinkOutput", "Link público"));
+  $("copyShareOwnerToken").addEventListener("click", () => copyShareValue("shareOwnerTokenOutput", "Chave privada"));
+  $("openSharedProfile").addEventListener("click", openSharedProfileByCode);
+  $("unpublishProfileButton").addEventListener("click", unpublishProfile);
   $("toggleCaptureMode").addEventListener("click", () => setCaptureMode(true));
   $("exitCaptureMode").addEventListener("click", () => setCaptureMode(false));
   document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && $("shareModal")?.classList.contains("open")) { closeShareManager(); return; }
     if (event.key === "Escape" && document.body.classList.contains("capture-mode")) {
       setCaptureMode(false);
       return;
@@ -3313,13 +3647,26 @@ function setupEvents() {
 }
 
 async function init() {
-  loadProfile();
+  if (IS_PUBLIC_VIEW) {
+    activateReadOnlyView();
+    try {
+      await loadSharedProfile();
+    } catch (error) {
+      console.error("Não foi possível carregar o perfil compartilhado:", error);
+      profile = structuredClone(DEFAULT_PROFILE);
+      sharedProfileLoadError = error.message || "Não foi possível carregar este perfil.";
+      showToast(sharedProfileLoadError);
+    }
+  } else {
+    loadProfile();
+  }
 
   try {
-    await openDatabase();
-    await restoreMedia();
+    if (!IS_PUBLIC_VIEW) await openDatabase();
+    if (!IS_PUBLIC_VIEW || sharedProfileLoaded) await restoreMedia();
   } catch (error) {
     console.error("Não foi possível iniciar o armazenamento:", error);
+    if (!IS_PUBLIC_VIEW) showToast("Não foi possível acessar as mídias salvas neste navegador.");
   }
 
   $("profileAudio").volume = profile.volume / 100;
@@ -3331,13 +3678,20 @@ async function init() {
   setupMusicPlayerResize();
   setupMusicPlayerDrag();
   applyMediaOpacitySettings();
-  updateProfileSwitcher();
+  if (!IS_PUBLIC_VIEW) updateProfileSwitcher();
   applyMusicPlayerSize();
   applyMusicPlayerPosition();
-  document.title = ACTIVE_PROFILE_ID === "perfil-1" ? "Hättz — Perfil 1" : "Hättz — Perfil 2";
+  document.title = IS_PUBLIC_VIEW
+    ? `${profile.nome || "Perfil compartilhado"} — Hättz`
+    : (ACTIVE_PROFILE_ID === "perfil-1" ? "Hättz — Perfil 1" : "Hättz — Perfil 2");
   renderProfile();
-  fillEditor();
-
+  if (IS_PUBLIC_VIEW && sharedProfileLoadError) {
+    const name = $("profileName");
+    const bio = $("profileBio");
+    if (name) name.textContent = "Perfil não encontrado";
+    if (bio) bio.textContent = sharedProfileLoadError;
+  }
+  if (!IS_PUBLIC_VIEW) fillEditor();
   setMediaAnimation(profile.animarMidia);
 }
 

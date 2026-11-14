@@ -42,6 +42,9 @@
               <span class="profile-switch-icon" aria-hidden="true">↗</span>
               <span id="openOtherProfileLabel">Criar perfil 2</span>
             </button>
+            <button class="share-profile-button" id="openShareManager" type="button" title="Compartilhar ou abrir perfil por código">
+              <span aria-hidden="true">↗</span><span>Compartilhar</span>
+            </button>
             <button class="icon-button capture-mode-button" id="toggleCaptureMode" type="button" aria-label="Ativar modo captura" aria-pressed="false" title="Modo captura">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M3 16v3a2 2 0 0 0 2 2h3"></path>
@@ -820,6 +823,62 @@
     </section>
   </div>
 
+
+  <div class="modal-backdrop share-modal-backdrop" id="shareModal" aria-hidden="true">
+    <section class="share-modal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle">
+      <header class="share-modal-header">
+        <div>
+          <span class="share-eyebrow">HÄTTZ SHARE</span>
+          <h2 id="shareModalTitle">Compartilhar perfil</h2>
+        </div>
+        <button class="close-button" id="closeShareModal" type="button" aria-label="Fechar">×</button>
+      </header>
+      <div class="share-modal-body">
+        <p class="share-intro">Publique uma cópia do perfil para que qualquer pessoa consiga visualizá-lo em outro navegador. O código público nunca permite editar.</p>
+        <div class="share-api-status" id="shareApiStatus">Verificando configuração da API...</div>
+        <button class="primary-button share-publish-button" id="publishProfileButton" type="button">Publicar / atualizar perfil</button>
+        <p class="share-publish-status" id="sharePublishStatus" role="status" aria-live="polite">Seu perfil continua salvo localmente até ser publicado.</p>
+
+        <div class="share-result-panel" id="shareResultPanel" hidden>
+          <div class="share-field">
+            <label for="shareCodeOutput">Código público</label>
+            <div class="share-input-action">
+              <input class="text-input" id="shareCodeOutput" type="text" readonly>
+              <button class="secondary-button" id="copyShareCode" type="button">Copiar</button>
+            </div>
+          </div>
+          <div class="share-field">
+            <label for="shareLinkOutput">Link para abrir o perfil</label>
+            <div class="share-input-action">
+              <input class="text-input" id="shareLinkOutput" type="text" readonly>
+              <button class="secondary-button" id="copyShareLink" type="button">Copiar</button>
+            </div>
+          </div>
+          <div class="share-owner-panel" id="shareOwnerPanel" hidden>
+            <label for="shareOwnerTokenOutput">Chave privada de edição</label>
+            <div class="share-input-action">
+              <input class="text-input" id="shareOwnerTokenOutput" type="password" readonly autocomplete="off">
+              <button class="secondary-button" id="copyShareOwnerToken" type="button">Copiar chave</button>
+            </div>
+            <small>Guarde esta chave num local seguro. Ela é diferente do código público e é necessária para atualizar ou despublicar o perfil neste navegador.</small>
+          </div>
+          <button class="text-button danger share-unpublish" id="unpublishProfileButton" type="button">Despublicar perfil</button>
+        </div>
+
+        <div class="share-divider"><span>OU</span></div>
+        <div class="share-field">
+          <label for="shareLookupCode">Já tem um código de perfil?</label>
+          <div class="share-input-action">
+            <input class="text-input" id="shareLookupCode" type="text" maxlength="16" placeholder="HTZ-ABCDE-FGHIJ" autocomplete="off">
+            <button class="secondary-button" id="openSharedProfile" type="button">Abrir</button>
+          </div>
+          <small>O perfil abre em uma nova aba, somente para visualização.</small>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="share-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

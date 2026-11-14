@@ -19,6 +19,12 @@ const SHARE_PUBLIC_CODE_KEY = `hattz-share-code:${ACTIVE_PROFILE_ID}`;
 let sharedMediaManifest = [];
 let sharedProfileLoaded = false;
 let sharedProfileLoadError = "";
+let isOfficialSharedProfile = false;
+const OFFICIAL_BADGE_LABELS = new Set(["OWNER", "FOUNDER", "CREATOR"]);
+
+function isOfficialBadge(value) {
+  return OFFICIAL_BADGE_LABELS.has(String(value || "").trim().toUpperCase());
+}
 
 function getShareApiBase() {
   const configured = window.HATTZ_SHARE_CONFIG?.apiBase || "";
@@ -390,7 +396,9 @@ function normalizeProfileData(parsed) {
 
   const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
   if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
-  normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
+  normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) =>
+    badge && (!isBlockedBadge(badge) || (IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge)))
+  ))];
 
   if (typeof parsed.animarMidia !== "boolean") {
     normalized.animarMidia = typeof parsed.animarAvatar === "boolean" ? parsed.animarAvatar : true;
@@ -435,6 +443,11 @@ async function loadSharedProfile() {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "Não foi possível localizar este perfil.");
+  isOfficialSharedProfile = data.official === true
+    && Array.isArray(data.officialBadges)
+    && ["OWNER", "FOUNDER", "CREATOR"].every((badge) =>
+      data.officialBadges.some((item) => String(item).trim().toUpperCase() === badge)
+    );
   profile = normalizeProfileData(data.profile);
   sharedMediaManifest = Array.isArray(data.media) ? data.media : [];
   sharedProfileLoaded = true;
@@ -1058,7 +1071,10 @@ function renderIdentity() {
 
   $("badges").innerHTML = profile.insignias
     .filter(Boolean)
-    .map((badge) => `<span class="badge">${escapeHTML(badge)}</span>`)
+    .map((badge) => {
+      const official = IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge);
+      return `<span class="badge${official ? " badge--official" : ""}"${official ? ' data-official="true"' : ""}>${escapeHTML(badge)}</span>`;
+    })
     .join("");
 
   document.documentElement.style.setProperty(
@@ -2508,10 +2524,12 @@ function deleteSavedTheme() {
   showToast("Tema excluído.");
 }
 
-const BADGE_PRESETS = ["Verified", "Gamer", "Artist", "Designer", "VIP", "Creator", "Photographer", "Music", "Technology", "Writer", "Editor", "Collector"];
+const BADGE_PRESETS = ["Verified", "Gamer", "Artist", "Designer", "VIP", "Photographer", "Music", "Technology", "Writer", "Editor", "Collector"];
 const RESERVED_LABELS = /\b(admin|administrator|dev|developer|staff|moderator)\b/i;
 const normalizeBadge = (value) => /^dono$/i.test(String(value).trim()) ? "Owner" : String(value).trim();
-const isBlockedBadge = (value) => RESERVED_LABELS.test(String(value)) || /\b(owner|dono)\b/i.test(String(value));
+const isBlockedBadge = (value) =>
+  RESERVED_LABELS.test(String(value))
+  || /\b(owner|dono|founder|creator)\b/i.test(String(value));
 
 function renderBadgeLibrary() {
   const container = $("badgeLibrary");

@@ -3876,7 +3876,7 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub · mesma base Liquid Glass da faixa de áudio. */
+/* Glass Hub · Liquid Glass inspirado no iOS 26, com a base translúcida do player. */
 .stat-card,
 .detail-card {
   position: relative;
@@ -3884,28 +3884,60 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
   border-radius: var(--glass-radius, var(--card-radius, 16px));
-  background: color-mix(in srgb, var(--card) 28%, transparent);
-  -webkit-backdrop-filter: blur(24px) saturate(150%);
-  backdrop-filter: blur(24px) saturate(150%);
-  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
+  background: color-mix(
+    in srgb,
+    var(--card) calc(var(--glass-opacity, 18%) + 10%),
+    transparent
+  );
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(150%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(150%);
+  box-shadow:
+    0 12px 38px #0006,
+    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
+    inset 0 0 0 1px color-mix(in srgb, #fff 3%, transparent);
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),
-    box-shadow var(--transition-fast);
+    box-shadow var(--transition-fast),
+    background var(--transition-fast);
 }
+
+/* Reflexo de superfície e brilho refratado nas bordas, sem aparência neon. */
 .stat-card::after,
 .detail-card::after {
-  content: none;
-}
-.stat-card:hover,
-.detail-card:hover {
-  border-color: color-mix(in srgb, var(--text) 30%, transparent);
-  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 12% 0%,
+      color-mix(in srgb, #fff var(--glass-shine, 4%), transparent),
+      transparent 48%
+    ),
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
+      transparent 30%,
+      transparent 72%,
+      color-mix(in srgb, var(--accent) 3%, transparent)
+    );
+  opacity: .9;
 }
 .stat-card > *,
 .detail-card > * {
   position: relative;
   z-index: 1;
+}
+.stat-card:hover,
+.detail-card:hover {
+  border-color: color-mix(in srgb, var(--text) 32%, var(--accent) 8%);
+  box-shadow:
+    0 14px 40px #0007,
+    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
+    inset 0 0 0 1px color-mix(in srgb, #fff 5%, transparent);
 }
 .card-lab {
   border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);

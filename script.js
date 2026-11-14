@@ -13,6 +13,21 @@ const ACTIVE_PROFILE_ID = PROFILE_IDS.includes(requestedProfileId) ? requestedPr
 const OTHER_PROFILE_ID = ACTIVE_PROFILE_ID === "perfil-1" ? "perfil-2" : "perfil-1";
 const SHARED_PROFILE_CODE = new URLSearchParams(window.location.search).get("share") || "";
 const IS_PUBLIC_VIEW = Boolean(SHARED_PROFILE_CODE);
+const OFFICIAL_PRIVATE_PROFILE_CODES = new Set(["MT7QTEVMZY", "YGZNK6TMG8"]);
+const PRIVATE_ROLE_VALUES = ["OWNER", "DEV", "FOUNDER", "CREATOR"];
+
+function isOfficialPrivateProfileCode(value) {
+  return OFFICIAL_PRIVATE_PROFILE_CODES.has(normalizePublicCode(value));
+}
+
+function hasPrivateRoleAccess() {
+  if (IS_PUBLIC_VIEW) return isOfficialPrivateProfileCode(SHARED_PROFILE_CODE);
+  return isOfficialPrivateProfileCode(getSavedShareCode()) && Boolean(getSavedOwnerToken());
+}
+
+function isReservedRole(value) {
+  return /^(OWNER|DEV|FOUNDER|CREATOR|ADMIN|ADMINISTRATOR|STAFF|MODERATOR|DEVELOPER|DONO)$/i.test(String(value || "").trim());
+}
 const SHARE_MEDIA_KEYS = ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"];
 const SHARE_OWNER_TOKEN_KEY = `hattz-share-owner:${ACTIVE_PROFILE_ID}`;
 const SHARE_PUBLIC_CODE_KEY = `hattz-share-code:${ACTIVE_PROFILE_ID}`;
@@ -356,9 +371,9 @@ function normalizeProfileData(parsed) {
   normalized.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
   normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
 
-  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
-  if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
-  normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
+  const roleValue = String(normalized.cargo || "").trim().toUpperCase();
+  if (isReservedRole(roleValue) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(roleValue))) normalized.cargo = "";
+    normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
 
   if (typeof parsed.animarMidia !== "boolean") {
     normalized.animarMidia = typeof parsed.animarAvatar === "boolean" ? parsed.animarAvatar : true;
@@ -958,9 +973,10 @@ function renderIdentity() {
 
   $("profileBio").textContent = profile.bio || "";
   const roleChip = $("profileRole");
-  const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i.test(String(profile.cargo || "").trim());
+  const roleValue = String(profile.cargo || "").trim().toUpperCase();
+  const blockedRole = isReservedRole(roleValue) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(roleValue));
   const safeRole = blockedRole ? "" : profile.cargo;
-  roleChip.textContent = safeRole || "";
+    roleChip.textContent = safeRole || "";
   roleChip.hidden = !safeRole;
   roleChip.classList.toggle("owner-role", /^(owner|dono)$/i.test(safeRole));
   roleChip.title = safeRole || "Identificação do perfil";
@@ -2465,7 +2481,22 @@ function toggleBadgePreset(event) {
   renderBadgeLibrary();
 }
 
+function updatePrivateRoleOptions() {
+  const select = $("editRole");
+  if (!select) return;
+  select.querySelectorAll("option[data-private-role]").forEach((option) => option.remove());
+  if (!hasPrivateRoleAccess()) return;
+  PRIVATE_ROLE_VALUES.forEach((role) => {
+    const option = document.createElement("option");
+    option.value = role;
+    option.textContent = role;
+    option.dataset.privateRole = "true";
+    select.appendChild(option);
+  });
+}
+
 function fillEditor() {
+  updatePrivateRoleOptions();
   $("editName").value = profile.nome;
   $("editUsername").value = profile.usuario;
   $("editBio").value = profile.bio;
@@ -2543,7 +2574,8 @@ function readIdentityEditor() {
   profile.nome = $("editName").value.trim();
   profile.usuario = normalizeUsername($("editUsername").value);
   profile.bio = $("editBio").value.trim();
-  profile.cargo = $("editRole").value;
+  const selectedRole = $("editRole").value;
+  profile.cargo = isReservedRole(selectedRole) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(selectedRole)) ? "" : selectedRole;
   profile.verificado = $("editVerified").checked;
   profile.verificadoCor = $("verifiedColor").value;
 
@@ -3091,7 +3123,18 @@ async function importProfileBackup(event) {
       detalhes: Array.isArray(imported.detalhes) ? imported.detalhes : structuredClone(DEFAULT_PROFILE.detalhes)
     };
 
-    if (/\b(owner|dono|admin|administrator|dev|developer|staff|moderator)\b/i.test(String(profile.cargo || ""))) profile.cargo = "";
+    const importedShare = backup.share || {};
+    const importedOwnerToken = String(importedShare.ownerToken || "").trim();
+    const importedShareCode = String(importedShare.code || "").trim();
+    const canImportPrivateRole = importedShare.profileId === ACTIVE_PROFILE_ID
+      && isOfficialPrivateProfileCode(importedShareCode)
+      && /^[A-Za-z0-9_-]{40,100}$/.test(importedOwnerToken);
+    if (canImportPrivateRole) {
+      localStorage.setItem(SHARE_PUBLIC_CODE_KEY, importedShareCode);
+      localStorage.setItem(SHARE_OWNER_TOKEN_KEY, importedOwnerToken);
+    }
+    const importedRole = String(profile.cargo || "").trim().toUpperCase();
+    if (isReservedRole(importedRole) && !(canImportPrivateRole && PRIVATE_ROLE_VALUES.includes(importedRole))) profile.cargo = "";
     profile.insignias = [...new Set(profile.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
 
     for (const key of ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"]) {
@@ -3100,16 +3143,6 @@ async function importProfileBackup(event) {
         await saveMedia(key, dataURLToBlob(value));
       } else {
         await deleteMedia(key);
-      }
-    }
-
-    // Share credentials belong to one profile slot; never move them into the other slot.
-    if (backup.share && backup.share.profileId === ACTIVE_PROFILE_ID) {
-      const code = String(backup.share.code || "").trim();
-      const ownerToken = String(backup.share.ownerToken || "").trim();
-      if (/^HTZ-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}$/.test(code) && /^[A-Za-z0-9_-]{40,100}$/.test(ownerToken)) {
-        localStorage.setItem(SHARE_PUBLIC_CODE_KEY, code);
-        localStorage.setItem(SHARE_OWNER_TOKEN_KEY, ownerToken);
       }
     }
 

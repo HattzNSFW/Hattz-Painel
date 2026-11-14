@@ -3883,11 +3883,7 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid color-mix(
-    in srgb,
-    var(--text) calc(12% + var(--glass-border, 30%) * .22),
-    transparent
-  );
+  border: 1px solid color-mix(in srgb, var(--text) var(--glass-border, 30%), transparent);
   border-radius: var(--glass-radius, var(--card-radius, 16px));
   background:
     linear-gradient(

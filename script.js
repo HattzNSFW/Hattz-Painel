@@ -2550,7 +2550,7 @@ function deleteSavedTheme() {
   showToast("Tema excluído.");
 }
 
-const BADGE_PRESETS = ["Developer", "Web Designer", "UI Designer", "Builder", "Creator", "Contributor", "Verified"];
+const BADGE_PRESETS = ["Criador", "Artista", "Música", "Gamer", "Cinema & Séries", "Leitura", "Esportes", "Fotografia", "Design", "Tecnologia", "Comunidade", "Verificado"];
 const BADGE_LOOKUP = new Map(BADGE_PRESETS.map((badge) => [badge.toLowerCase(), badge]));
 const normalizeBadge = (value) => {
   const label = String(value ?? "").trim();

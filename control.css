@@ -178,3 +178,31 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
  .shell{padding:10px}.topbar{height:68px;border-radius:17px}.brand{font-size:13px;gap:9px}.brand-avatar{width:39px;height:39px;border-radius:13px}.brand small{font-size:7px}.top-actions{gap:8px}.layout{margin-top:13px}.sidebar{position:relative;top:auto;border-radius:15px;margin-bottom:14px;padding:7px;gap:4px}.nav-item{min-height:39px;padding:9px 11px;border-radius:10px}.nav-item.active:after{display:none}.content-area{padding:0 1px}.page-heading{margin:8px 0 17px}.page-heading h1{font-size:25px}.metric-grid{gap:8px}.metric{min-height:112px;padding:14px;border-radius:15px}.metric strong{font-size:20px;margin-top:9px}.metric span{font-size:9px}.metric small{font-size:8px}.panel{padding:16px;border-radius:16px}.panel-grid{gap:10px;margin-top:10px}.storage-panel{padding:18px}.storage-stats>div{padding:12px}.audit-item{grid-template-columns:1fr;gap:6px}.audit-target{justify-self:start}.maintenance-section{padding:19px 0}.maintenance-section-heading{gap:10px}.maintenance-section-heading h2{font-size:15px}.section-number{flex-basis:30px;height:30px}.maintenance-preview{border-radius:17px}.selection-toolbar{gap:10px}.selection-toolbar>div{width:100%}.selection-toolbar button{flex:1 1 auto}.toolbar .search-input{flex-basis:100%}.footer{padding:20px 8px}
 }
 @media(prefers-reduced-motion:reduce){.panel,.nav-item,.primary,.secondary,.danger,.quiet-button,tbody tr{transition:none!important}}
+
+
+/* Hättz Control — botão de reset de perfil */
+.reset-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 7px;
+  padding: 6px 10px;
+  border: 1px solid rgba(226, 139, 154, .25);
+  border-radius: 8px;
+  background: rgba(190, 73, 97, .09);
+  color: #e8a2ae;
+  font: 700 9px "DM Sans", sans-serif;
+  letter-spacing: .02em;
+  transition: .2s ease;
+}
+.reset-profile-btn:hover {
+  background: rgba(190, 73, 97, .19);
+  border-color: rgba(226, 139, 154, .5);
+  color: #ffdce2;
+  transform: translateY(-1px);
+}
+.reset-profile-btn:disabled {
+  opacity: .45;
+  cursor: wait;
+  transform: none;
+}

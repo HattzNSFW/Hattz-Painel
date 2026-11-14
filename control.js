@@ -169,6 +169,14 @@
       $("maintenanceTitle").value = data.title || "Em manutenção";
       $("maintenanceMessage").value = data.message || "Voltamos em breve.";
       $("maintenanceAllowlist").value = (data.allowlist || []).join("\n");
+      $("maintenanceBackgroundType").value = data.backgroundType || "color";
+      $("maintenanceBackgroundUrl").value = data.backgroundUrl && !data.backgroundUrl.startsWith("/api/") ? data.backgroundUrl : "";
+      $("maintenanceAccent").value = data.accentColor || "#9b7add";
+      $("maintenanceOverlay").value = data.overlayOpacity ?? 62;
+      $("maintenanceBlur").value = data.blur ?? 0;
+      updateMaintenancePreview(data.backgroundUrl || "", data.backgroundType || "color");
+      updateMaintenanceRangeLabels();
+      updateMaintenancePreviewText();
     } catch (error) { notify(error.message); }
   }
   async function saveMaintenance() {
@@ -178,17 +186,64 @@
         enabled: $("maintenanceEnabled").checked,
         title: $("maintenanceTitle").value,
         message: $("maintenanceMessage").value,
-        allowlist
+        allowlist,
+        backgroundType: $("maintenanceBackgroundType").value,
+        backgroundUrl: $("maintenanceBackgroundUrl").value.trim(),
+        overlayOpacity: Number($("maintenanceOverlay").value),
+        blur: Number($("maintenanceBlur").value),
+        accentColor: $("maintenanceAccent").value
       }) });
       notify(data.enabled ? "Modo de manutenção ativado." : "Modo de manutenção desativado.");
       await loadOverview();
     } catch (error) { notify(error.message); }
   }
+  function updateMaintenanceRangeLabels() {
+    $("maintenanceOverlayValue").textContent = `${$("maintenanceOverlay").value}%`;
+    $("maintenanceBlurValue").textContent = `${$("maintenanceBlur").value} px`;
+  }
+  function updateMaintenancePreview(url = $("maintenanceBackgroundUrl").value.trim(), type = $("maintenanceBackgroundType").value) {
+    const preview = $("maintenancePreview");
+    preview.querySelectorAll(".preview-media").forEach((node) => node.remove());
+    if (url && type !== "color") {
+      const media = type === "video" ? document.createElement("video") : document.createElement("img");
+      media.className = "preview-media";
+      media.src = url.startsWith("/") ? `${API}${url}` : url;
+      if (type === "video") { media.autoplay = true; media.muted = true; media.loop = true; media.playsInline = true; }
+      preview.prepend(media);
+    }
+    preview.style.setProperty("--preview-overlay", `${Number($("maintenanceOverlay").value) / 100}`);
+    preview.style.setProperty("--preview-blur", `${Number($("maintenanceBlur").value)}px`);
+    preview.style.setProperty("--preview-accent", $("maintenanceAccent").value);
+  }
+  function updateMaintenancePreviewText() {
+    $("maintenancePreviewTitle").textContent = $("maintenanceTitle").value || "Em manutenção";
+    $("maintenancePreviewMessage").textContent = $("maintenanceMessage").value || "Voltamos em breve.";
+  }
+  async function uploadMaintenanceBackground() {
+    const file = $("maintenanceBackgroundFile").files?.[0];
+    if (!file) { notify("Escolha uma imagem ou vídeo primeiro."); return; }
+    if (file.size > 75 * 1024 * 1024) { notify("O arquivo ultrapassa o limite de 75 MB."); return; }
+    const button = $("uploadMaintenanceBackground"); button.disabled = true; button.textContent = "Enviando…";
+    try {
+      const headers = new Headers({ "Content-Type": file.type, "X-File-Size": String(file.size) });
+      if (token) headers.set("Authorization", `Bearer ${token}`);
+      const response = await fetch(`${API}/api/admin/maintenance/media`, { method: "POST", headers, body: file, cache: "no-store" });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || `Falha HTTP ${response.status}`);
+      $("maintenanceBackgroundType").value = result.backgroundType;
+      $("maintenanceBackgroundUrl").value = result.backgroundUrl;
+      updateMaintenancePreview(result.backgroundUrl, result.backgroundType);
+      notify("Fundo enviado ao Supabase Storage. Salve a configuração para aplicar.");
+    } catch (error) { notify(error.message); }
+    finally { button.disabled = false; button.textContent = "Enviar fundo"; }
+  }
   async function loadIp() {
     const profile = encodeURIComponent($("ipProfileFilter").value.trim());
+    const reloadButton = $("reloadIp");
+    if (reloadButton) { reloadButton.disabled = true; reloadButton.textContent = "Atualizando…"; }
     try {
       const data = await api(`/api/admin/ip-events?limit=100${profile ? `&profile=${profile}` : ""}`);
-      $("vpnProviderStatus").textContent = "Localização aproximada via Cloudflare. VPN/proxy/Tor só são classificados quando o provedor opcional estiver configurado.";
+      $("vpnProviderStatus").textContent = `Exibindo ${data.events.length} IPs únicos por perfil. Eventos repetidos do mesmo IP foram agrupados; localização aproximada via Cloudflare.`;
       $("ipTable").innerHTML = data.events.length ? data.events.map((event) => {
         const location = [event.city, event.region, event.country].filter(Boolean).join(", ") || "—";
         const isp = [event.as_org, event.asn ? `ASN ${event.asn}` : ""].filter(Boolean).join(" · ") || "—";
@@ -196,6 +251,19 @@
         return `<tr><td><span class="code-cell">${escapeHtml(event.ip || "Criptografado")}</span></td><td>${escapeHtml(event.profile_code || "—")}</td><td>${escapeHtml(location)}</td><td>${escapeHtml(isp)}</td><td>${escapeHtml(risk)}${event.risk_score != null ? `<span class="sub-cell">Risk score ${event.risk_score}</span>` : ""}</td><td>${formatDate(event.created_at)}</td></tr>`;
       }).join("") : '<tr><td colspan="6" class="empty">Nenhum evento encontrado.</td></tr>';
     } catch (error) { $("ipTable").innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(error.message)}</td></tr>`; }
+    finally { if (reloadButton) { reloadButton.disabled = false; reloadButton.textContent = "↻ Atualizar"; } }
+  }
+  async function clearIpEvents() {
+    const accepted = window.confirm("Isso apagará todos os registros atuais de IP. Novos acessos voltarão a ser registrados normalmente. Deseja continuar?");
+    if (!accepted) return;
+    const button = $("clearIpEvents");
+    button.disabled = true; button.textContent = "Limpando…";
+    try {
+      const result = await api("/api/admin/ip-events/clear", { method: "POST", body: JSON.stringify({ confirmation: "LIMPAR" }) });
+      notify(`${Number(result.deleted || 0)} registros de IP removidos. Atualizando lista…`);
+      await loadIp();
+    } catch (error) { notify(error.message); }
+    finally { button.disabled = false; button.textContent = "⌫ Limpar histórico"; }
   }
   async function loadAudit() {
     try {
@@ -224,8 +292,13 @@
   $("nextPage").addEventListener("click", () => { page = Math.min(totalPages, page + 1); loadProfiles(); });
   $("reloadStorage").addEventListener("click", loadStorage);
   $("saveMaintenance").addEventListener("click", saveMaintenance);
+  $("uploadMaintenanceBackground").addEventListener("click", uploadMaintenanceBackground);
+  ["maintenanceTitle", "maintenanceMessage"].forEach((id) => $(id).addEventListener("input", updateMaintenancePreviewText));
+  ["maintenanceBackgroundUrl", "maintenanceBackgroundType", "maintenanceAccent", "maintenanceOverlay", "maintenanceBlur"].forEach((id) => $(id).addEventListener("input", () => { updateMaintenanceRangeLabels(); updateMaintenancePreview(); }));
+  $("clearMaintenanceBackground").addEventListener("click", () => { $("maintenanceBackgroundUrl").value = ""; $("maintenanceBackgroundType").value = "color"; updateMaintenancePreview("", "color"); });
   $("reloadIp").addEventListener("click", loadIp);
   $("searchIp").addEventListener("click", loadIp);
+  $("clearIpEvents").addEventListener("click", clearIpEvents);
   $("reloadAudit").addEventListener("click", loadAudit);
 
   if (token) showApp(true); else showApp(false);

@@ -997,7 +997,8 @@ function renderStats() {
         <span class="stat-label">${escapeHTML(stat.label)}</span>
         <strong class="stat-value">${escapeHTML(stat.value || "")}</strong>
       </article>
-    `;  }).join("");
+    `;
+  }).join("");
 }
 
 function renderDetails() {
@@ -1996,7 +1997,8 @@ function resetProfileSetting(key) {
   } else if (["bannerOpacity", "cardBackgroundOpacity", "backgroundOpacity", "musicBarBackgroundOpacity"].includes(key)) {
     applyMediaOpacitySettings();
   } else if (["gradientIntensity", "cardRadius"].includes(key)) {
-    applyDesignSettings();  } else if (["musicPlayerWidth", "musicPlayerHeight"].includes(key)) {
+    applyDesignSettings();
+  } else if (["musicPlayerWidth", "musicPlayerHeight"].includes(key)) {
     applyMusicPlayerSize();
     $("musicPlayerWidthValue").textContent = `${profile.musicPlayerWidth} px`;
     $("musicPlayerHeightValue").textContent = `${profile.musicPlayerHeight} px`;
@@ -2995,7 +2997,8 @@ async function uploadMusicCover(event) {
     showToast("Capa adicionada.");
   } catch (error) {
     console.error("Falha ao salvar capa:", error);
-    showToast("Não foi possível salvar a capa neste navegador.");  } finally {
+    showToast("Não foi possível salvar a capa neste navegador.");
+  } finally {
     event.target.value = "";
   }
 }

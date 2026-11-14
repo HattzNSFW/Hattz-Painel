@@ -1083,6 +1083,11 @@ function renderStats() {
   }).join("");
 }
 
+
+  refreshCardGlassTargets();
+  applyCardGlassSettings();
+}
+
 function renderDetails() {
   $("detailsSectionTitle").textContent = profile.detailsTitle || "Um pouco sobre mim";
   $("detailsSectionDescription").textContent = profile.detailsSubtitle || "";
@@ -1099,6 +1104,11 @@ function renderDetails() {
       </article>
     `;
   }).join("");
+}
+
+
+  refreshCardGlassTargets();
+  applyCardGlassSettings();
 }
 
 function renderProfile() {

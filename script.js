@@ -2569,30 +2569,21 @@ function toggleBadgePreset(event) {
   renderBadgeLibrary();
 }
 
+const PUBLIC_ROLE_LABELS = new Set(["MEMBRO", "VIP", "APOIADOR", "PARCEIRO", "CRIADOR", "ARTISTA", "STREAMER"]);
+
 function configureRoleEditor() {
   const select = $("editRole");
-  const customInput = $("editCustomRole");
-  if (!select || !customInput) return;
+  if (!select) return;
 
   const isOfficial = isOfficialLocalProfile();
   select.querySelectorAll("[data-reserved-role]").forEach((option) => {
+    option.hidden = !isOfficial;
     option.disabled = !isOfficial;
   });
 
-  const savedRole = String(profile.cargo || "").trim();
-  const upperRole = savedRole.toUpperCase();
-  if (RESERVED_ROLE_LABELS.has(upperRole)) {
-    select.value = isOfficial ? upperRole : "";
-    customInput.value = "";
-  } else if (savedRole) {
-    select.value = "custom";
-    customInput.value = savedRole;
-  } else {
-    select.value = "";
-    customInput.value = "";
-  }
-  customInput.hidden = select.value !== "custom";
-  customInput.disabled = select.value !== "custom";
+  const savedRole = String(profile.cargo || "").trim().toUpperCase();
+  const allowed = PUBLIC_ROLE_LABELS.has(savedRole) || (isOfficial && RESERVED_ROLE_LABELS.has(savedRole));
+  select.value = allowed ? savedRole : "";
 }
 
 function fillEditor() {
@@ -2675,13 +2666,10 @@ function readIdentityEditor() {
   profile.usuario = normalizeUsername($("editUsername").value);
   profile.bio = $("editBio").value.trim();
   const selectedRole = $("editRole").value;
-  if (selectedRole === "custom") {
-    profile.cargo = $("editCustomRole").value.trim().slice(0, 40);
-  } else if (RESERVED_ROLE_LABELS.has(selectedRole) && !isOfficialLocalProfile()) {
-    profile.cargo = "";
-  } else {
-    profile.cargo = selectedRole;
-  }
+  const isOfficial = isOfficialLocalProfile();
+  profile.cargo = PUBLIC_ROLE_LABELS.has(selectedRole) || (isOfficial && RESERVED_ROLE_LABELS.has(selectedRole))
+    ? selectedRole
+    : "";
   profile.verificado = $("editVerified").checked;
   profile.verificadoCor = $("verifiedColor").value;
 

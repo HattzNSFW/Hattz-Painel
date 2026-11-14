@@ -206,15 +206,17 @@
           </div>
 
           <div class="field-group">
-            <label for="editRole">Cargo do perfil</label>
+            <label for="editRole">Cargo principal</label>
             <select class="text-input" id="editRole">
-              <option value="">Sem identificação</option>
-              <option value="Membro">Membro</option>
-              <option value="Artista">Artista</option>
-              <option value="Designer">Designer</option>
-              <option value="VIP">VIP</option>
+              <option value="">Nenhum cargo</option>
+              <option value="OWNER" data-reserved-role>OWNER</option>
+              <option value="DEV" data-reserved-role>DEV</option>
+              <option value="FOUNDER" data-reserved-role>FOUNDER</option>
+              <option value="CREATOR" data-reserved-role>CREATOR</option>
+              <option value="custom">Cargo personalizado</option>
             </select>
-            <small class="field-hint">Owner · Hättz é uma identificação reservada e não pode ser atribuída a perfis comuns.</small>
+            <input class="text-input" id="editCustomRole" maxlength="40" placeholder="Digite seu cargo personalizado" hidden disabled>
+            <small class="field-hint">Cargos reservados só podem ser usados pelos dois perfis oficiais. Você pode escolher um cargo personalizado ou nenhum.</small>
           </div>
 
           <div class="field-group">
@@ -239,8 +241,9 @@
           </div>
 
           <div class="field-group">
-            <label for="editBadges">Tags personalizadas</label>
-            <input class="text-input" id="editBadges" placeholder="Ex.: Criador, Fotografia, Música, Tecnologia">
+            <label for="editBadges">Insígnias do perfil</label>
+            <input class="text-input" id="editBadges" placeholder="Selecione as insígnias abaixo" aria-describedby="badgeHint">
+            <small class="field-hint" id="badgeHint">Escolha quantas quiser. As insígnias selecionadas aparecem no perfil e são salvas junto com ele.</small>
             <div class="badge-library" id="badgeLibrary" aria-label="Biblioteca de insígnias"></div>
           </div>
 

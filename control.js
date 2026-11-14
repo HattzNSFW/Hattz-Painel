@@ -79,6 +79,33 @@
     if (name === "ip") loadIp();
     if (name === "audit") loadAudit();
   }
+  const brandAvatarKey = "hattz_control_brand_avatar";
+  function applyBrandAvatar(dataUrl) {
+    ["brandAvatarLogin", "brandAvatarHeader", "maintenancePreviewAvatar"].forEach((id) => {
+      const image = $(id);
+      if (!image) return;
+      const fallback = $(id === "brandAvatarLogin" ? "brandAvatarLoginFallback" : id === "brandAvatarHeader" ? "brandAvatarHeaderFallback" : "maintenancePreviewAvatarFallback");
+      if (dataUrl) { image.src = dataUrl; image.hidden = false; if (fallback) fallback.hidden = true; }
+      else { image.removeAttribute("src"); image.hidden = true; if (fallback) fallback.hidden = false; }
+    });
+  }
+  function initBrandAvatar() {
+    applyBrandAvatar(localStorage.getItem(brandAvatarKey) || "");
+    document.querySelectorAll("[data-brand-avatar-trigger]").forEach((button) => button.addEventListener("click", () => $("brandAvatarFile").click()));
+    $("brandAvatarFile").addEventListener("change", () => {
+      const file = $("brandAvatarFile").files?.[0];
+      if (!file) return;
+      if (!file.type.startsWith("image/")) { notify("Escolha um arquivo de imagem."); return; }
+      if (file.size > 5 * 1024 * 1024) { notify("A foto deve ter no máximo 5 MB."); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        try { localStorage.setItem(brandAvatarKey, String(reader.result)); applyBrandAvatar(String(reader.result)); notify("Foto de perfil atualizada neste navegador."); }
+        catch { notify("Não foi possível salvar a foto. Tente uma imagem menor."); }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
   async function loadOverview() {
     try {
       const [storage, maintenance] = await Promise.all([api("/api/admin/storage"), api("/api/admin/maintenance")]);
@@ -275,6 +302,7 @@
     } catch (error) { $("auditList").innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; }
   }
 
+  initBrandAvatar();
   $("loginForm").addEventListener("submit", login);
   $("logoutButton").addEventListener("click", () => logout(true));
   document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));

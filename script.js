@@ -104,7 +104,7 @@ const DEFAULT_PROFILE = {
   volume: 12,
   gradientIntensity: 55,
   cardRadius: 18,
-  cardGlass: { opacity: 34, blur: 24, shine: 6, reflection: 7, border: 34, shadow: 34, radius: 16 },
+  cardGlass: { style: "liquid-glass", opacity: 34, blur: 24, shine: 6, reflection: 7, border: 34, shadow: 34, radius: 16 },
   cardGlassOverrides: {},
 
   tema: "dark",
@@ -344,7 +344,10 @@ function normalizeProfileData(parsed) {
 
   const glassDefaults = DEFAULT_PROFILE.cardGlass;
   const glassSource = parsed.cardGlass && typeof parsed.cardGlass === "object" ? parsed.cardGlass : {};
+  const CARD_GLASS_STYLES = ["liquid-glass", "metallic", "layered-depth", "liquid-chrome", "minimal-premium", "soft-neumorphism", "holographic"];
+  const normalizeCardGlassStyle = (value) => CARD_GLASS_STYLES.includes(value) ? value : "liquid-glass";
   normalized.cardGlass = {
+    style: normalizeCardGlassStyle(glassSource.style),
     opacity: clampNumber(glassSource.opacity, 0, 85, glassDefaults.opacity),
     blur: clampNumber(glassSource.blur, 0, 36, glassDefaults.blur),
     shine: clampNumber(glassSource.shine, 0, 100, glassDefaults.shine),
@@ -369,6 +372,7 @@ function normalizeProfileData(parsed) {
     Object.entries(parsed.cardGlassOverrides).slice(0, 100).forEach(([key, value]) => {
       if (!/^(stat|detail):[a-zA-Z0-9_-]{1,80}$/.test(key) || !value || typeof value !== "object") return;
       normalized.cardGlassOverrides[key] = {
+        style: normalizeCardGlassStyle(value.style || normalized.cardGlass.style),
         opacity: clampNumber(value.opacity, 0, 85, glassDefaults.opacity),
         blur: clampNumber(value.blur, 0, 36, glassDefaults.blur),
         shine: clampNumber(value.shine, 0, 100, glassDefaults.shine),
@@ -592,6 +596,7 @@ function applyDesignSettings() {
 }
 
 const CARD_GLASS_FIELDS = ["opacity", "blur", "shine", "reflection", "border", "shadow", "radius"];
+const CARD_GLASS_STYLES = ["liquid-glass", "metallic", "layered-depth", "liquid-chrome", "minimal-premium", "soft-neumorphism", "holographic"];
 function cardGlassInputId(key) { return "cardGlass" + key[0].toUpperCase() + key.slice(1); }
 function getCardGlassTargetKey() { return $("cardLabTarget")?.value || "global"; }
 function getCardGlassTargetStyle(target = getCardGlassTargetKey()) {
@@ -605,6 +610,8 @@ function updateCardGlassLabels(style) {
 function syncCardGlassControls() {
   const style = getCardGlassTargetStyle();
   CARD_GLASS_FIELDS.forEach((key) => { const input = $(cardGlassInputId(key)); if (input) input.value = style[key]; });
+  const styleSelect = $("cardGlassStyle");
+  if (styleSelect) styleSelect.value = CARD_GLASS_STYLES.includes(style.style) ? style.style : "liquid-glass";
   updateCardGlassLabels(style);
 }
 function refreshCardGlassTargets() {
@@ -623,7 +630,10 @@ function applyCardGlassSettings() {
   Object.entries(values).forEach(([key, value]) => root.style.setProperty(key, value));
   document.querySelectorAll("[data-card-glass-key]").forEach((card) => {
     Object.keys(values).forEach((property) => card.style.removeProperty(property));
-    const override = profile.cardGlassOverrides?.[card.dataset.cardGlassKey]; if (!override) return;
+    const override = profile.cardGlassOverrides?.[card.dataset.cardGlassKey];
+    const effective = override || global;
+    card.dataset.cardGlassStyle = CARD_GLASS_STYLES.includes(effective.style) ? effective.style : "liquid-glass";
+    if (!override) return;
     card.style.setProperty("--glass-opacity", override.opacity + "%"); card.style.setProperty("--glass-blur", override.blur + "px");
     card.style.setProperty("--glass-shine", override.shine + "%"); card.style.setProperty("--glass-reflection", override.reflection + "%");
     card.style.setProperty("--glass-border", override.border + "%"); card.style.setProperty("--glass-shadow", override.shadow + "%");
@@ -631,11 +641,14 @@ function applyCardGlassSettings() {
   });
 }
 function updateCardGlassFromControls() {
-  const target = getCardGlassTargetKey(), next = {};
+  const target = getCardGlassTargetKey();
+  const current = getCardGlassTargetStyle(target);
+  const next = { ...current, style: $("cardGlassStyle")?.value || "liquid-glass" };
   CARD_GLASS_FIELDS.forEach((key) => {
     const min = key === "radius" ? 8 : 0, max = key === "opacity" ? 85 : key === "blur" ? 36 : key === "radius" ? 32 : 100;
     next[key] = clampNumber($(cardGlassInputId(key))?.value, min, max, DEFAULT_PROFILE.cardGlass[key]);
   });
+  if (!CARD_GLASS_STYLES.includes(next.style)) next.style = "liquid-glass";
   if (target === "global") profile.cardGlass = next;
   else { profile.cardGlassOverrides = profile.cardGlassOverrides || {}; profile.cardGlassOverrides[target] = next; }
   updateCardGlassLabels(next); applyCardGlassSettings();
@@ -3765,6 +3778,7 @@ function setupEvents() {
     applyDesignSettings();
   });
   $("cardLabTarget").addEventListener("change", syncCardGlassControls);
+  $("cardGlassStyle").addEventListener("change", updateCardGlassFromControls);
   CARD_GLASS_FIELDS.forEach((key) => $(cardGlassInputId(key)).addEventListener("input", updateCardGlassFromControls));
   $("resetCardGlassTarget").addEventListener("click", () => {
     const target = getCardGlassTargetKey();

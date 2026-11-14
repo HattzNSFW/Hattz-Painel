@@ -275,7 +275,7 @@
     }
 
     const accepted = window.confirm(
-      \`ATENÇÃO: você está prestes a resetar o perfil \${code}.\n\n\` +
+      `ATENÇÃO: você está prestes a resetar o perfil ${code}.\n\n` +
       "Isso irá:\n" +
       "• Restaurar todas as configurações ao padrão inicial.\n" +
       "• Apagar todas as mídias do perfil no Supabase.\n" +
@@ -292,7 +292,7 @@
       return;
     }
 
-    const button = document.querySelector(\`[data-reset-code="\${CSS.escape(code)}"]\`);
+    const button = document.querySelector(`[data-reset-code="${CSS.escape(code)}"]`);
     if (button) {
       button.disabled = true;
       button.textContent = "Resetando…";
@@ -300,7 +300,7 @@
 
     try {
       const result = await api(
-        \`/api/admin/profiles/\${encodeURIComponent(code)}/reset\`,
+        `/api/admin/profiles/${encodeURIComponent(code)}/reset`,
         {
           method: "POST",
           body: JSON.stringify({
@@ -311,12 +311,12 @@
       );
 
       notify(
-        \`Perfil restaurado. \${result.deletedMediaCount} mídia(s) removida(s). \${formatBytes(result.releasedBytes)} liberados.\`
+        `Perfil restaurado. ${result.deletedMediaCount} mídia(s) removida(s). ${formatBytes(result.releasedBytes)} liberados.`
       );
 
       await Promise.all([loadProfiles(), loadStorage(), loadOverview()]);
     } catch (error) {
-      notify(\`Falha ao resetar: \${error.message}\`);
+      notify(`Falha ao resetar: ${error.message}`);
       if (button) {
         button.disabled = false;
         button.textContent = "Resetar";

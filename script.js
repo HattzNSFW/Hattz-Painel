@@ -399,7 +399,7 @@ function normalizeProfileData(parsed) {
   const mayUseOfficialRole = IS_PUBLIC_VIEW ? isOfficialSharedProfile : isOfficialLocalProfile();
   if (RESERVED_ROLE_LABELS.has(roleValue) && !mayUseOfficialRole) normalized.cargo = "";
   normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) =>
-    badge && (!isBlockedBadge(badge) || (IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge)))
+    badge && !isBlockedBadge(badge)
   ))];
 
   if (typeof parsed.animarMidia !== "boolean") {
@@ -2536,7 +2536,7 @@ function renderBadgeLibrary() {
 
   const selected = $("editBadges").value
     .split(",")
-    .map((item) => item.trim())
+    .map(normalizeBadge)
     .filter((item) => item && !isBlockedBadge(item));
 
   container.innerHTML = BADGE_PRESETS.map((badge) => `

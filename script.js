@@ -2102,6 +2102,8 @@ function resetAppearance() {
     "animarMidia", "avatarPausado", "bannerPausado", "fundoPausado", "cardBackgroundPausado"
   ];
   keys.forEach((key) => { profile[key] = structuredClone(DEFAULT_PROFILE[key]); });
+  profile.cardGlass = structuredClone(DEFAULT_PROFILE.cardGlass);
+  profile.cardGlassOverrides = {};
   profile.cores = structuredClone(DEFAULT_PROFILE.cores);
   ["avatar", "banner", "cardBackground", "background", "musicBarBackground"].forEach((key) => {
     profile[`${key}Crop`] = structuredClone(DEFAULT_PROFILE[`${key}Crop`]);

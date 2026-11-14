@@ -3887,15 +3887,15 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   background:
     linear-gradient(
       135deg,
-      color-mix(in srgb, var(--accent) 3%, transparent),
+      color-mix(in srgb, var(--accent) 1.5%, transparent),
       transparent 54%
     ),
     color-mix(in srgb, var(--card) var(--glass-opacity, 18%), transparent);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(145%);
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(145%);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(125%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(125%);
   box-shadow:
-    0 10px 28px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 4%, transparent);
+    0 9px 24px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 1.5%, transparent);
   transition:
     border-color var(--transition-fast),
     background var(--transition-fast),
@@ -3912,23 +3912,23 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   pointer-events: none;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--accent) 5%, transparent),
+    color-mix(in srgb, var(--accent) 1.5%, transparent),
     transparent 42%,
     transparent 78%,
-    color-mix(in srgb, var(--accent) 3%, transparent)
+    color-mix(in srgb, var(--accent) 1%, transparent)
   );
-  opacity: .7;
+  opacity: .35;
 }
 .stat-card:hover,
 .detail-card:hover {
   border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 58%),
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 3%, transparent), transparent 58%),
     color-mix(in srgb, var(--card) var(--glass-opacity, 18%), transparent);
   box-shadow:
-    0 12px 30px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
-    0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 10%, transparent);
+    0 10px 26px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
+    0 0 0 1px color-mix(in srgb, var(--accent) 4%, transparent),
+    inset 0 1px 0 color-mix(in srgb, var(--accent) 3%, transparent);
 }
 .stat-card > *,
 .detail-card > * {

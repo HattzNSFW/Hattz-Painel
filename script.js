@@ -104,7 +104,7 @@ const DEFAULT_PROFILE = {
   volume: 12,
   gradientIntensity: 55,
   cardRadius: 18,
-  cardGlass: { opacity: 18, blur: 24, shine: 4, reflection: 5, border: 30, shadow: 34, radius: 16 },
+  cardGlass: { opacity: 34, blur: 24, shine: 6, reflection: 7, border: 34, shadow: 34, radius: 16 },
   cardGlassOverrides: {},
 
   tema: "dark",
@@ -355,10 +355,12 @@ function normalizeProfileData(parsed) {
   };
   // Migra somente o conjunto antigo de valores padrão; ajustes personalizados são preservados.
   const legacyGlassDefaults = { opacity: 30, blur: 18, shine: 35, reflection: 45, border: 55, shadow: 45, radius: 18 };
-  const previousGlassDefaults = { opacity: 18, blur: 24, shine: 12, reflection: 14, border: 30, shadow: 34, radius: 16 };
+  const previousGlassDefaults = { opacity: 18, blur: 24, shine: 4, reflection: 5, border: 30, shadow: 34, radius: 16 };
+  const recentGlassDefaults = { opacity: 18, blur: 24, shine: 12, reflection: 14, border: 30, shadow: 34, radius: 16 };
   if (
     Object.keys(legacyGlassDefaults).every((key) => Number(glassSource[key]) === legacyGlassDefaults[key]) ||
-    Object.keys(previousGlassDefaults).every((key) => Number(glassSource[key]) === previousGlassDefaults[key])
+    Object.keys(previousGlassDefaults).every((key) => Number(glassSource[key]) === previousGlassDefaults[key]) ||
+    Object.keys(recentGlassDefaults).every((key) => Number(glassSource[key]) === recentGlassDefaults[key])
   ) {
     normalized.cardGlass = structuredClone(glassDefaults);
   }

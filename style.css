@@ -3839,3 +3839,26 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   letter-spacing: .06em;
   font-weight: 800;
 }
+
+
+/* Cargos do perfil: permite múltiplas etiquetas oficiais ao lado do usuário. */
+.role-chip-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.role-chip-list[hidden] {
+  display: none !important;
+}
+.role-chip-list > .role-chip {
+  display: inline-flex;
+  align-items: center;
+}
+.role-chip-list > .role-chip--official {
+  border-color: color-mix(in srgb, #cbb5ff 72%, #ffffff 28%);
+  background: linear-gradient(110deg, #171321, #302442, #171321);
+  color: #eadfff;
+  box-shadow: 0 0 10px #a78bfa30, inset 0 0 8px #d9c6ff12;
+}

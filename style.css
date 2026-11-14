@@ -3875,15 +3875,15 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub: base Liquid Glass idêntica à faixa compacta de áudio.
-   Mantém somente o raio configurável dos cartões; o material é o mesmo do player. */
+/* Glass Hub: vidro realmente translúcido — menos pigmento escuro,
+   mantendo o mesmo blur e a mesma saturação da faixa de áudio. */
 .stat-card,
 .detail-card {
   border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
-  background: color-mix(in srgb, var(--card) 28%, transparent);
+  background: color-mix(in srgb, var(--card) 12%, transparent);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
   backdrop-filter: blur(24px) saturate(150%);
-  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
+  box-shadow: 0 12px 38px #0005, inset 0 1px 0 #ffffff18;
 }
 .stat-card::after,
 .detail-card::after {

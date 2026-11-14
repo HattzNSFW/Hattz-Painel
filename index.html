@@ -209,14 +209,19 @@
             <label for="editRole">Cargo principal</label>
             <select class="text-input" id="editRole">
               <option value="">Nenhum cargo</option>
+              <option value="MEMBRO">Membro</option>
+              <option value="VIP">VIP</option>
+              <option value="APOIADOR">Apoiador</option>
+              <option value="PARCEIRO">Parceiro</option>
+              <option value="CRIADOR">Criador</option>
+              <option value="ARTISTA">Artista</option>
+              <option value="STREAMER">Streamer</option>
               <option value="OWNER" data-reserved-role>OWNER</option>
               <option value="DEV" data-reserved-role>DEV</option>
               <option value="FOUNDER" data-reserved-role>FOUNDER</option>
               <option value="CREATOR" data-reserved-role>CREATOR</option>
-              <option value="custom">Cargo personalizado</option>
             </select>
-            <input class="text-input" id="editCustomRole" maxlength="40" placeholder="Digite seu cargo personalizado" hidden disabled>
-            <small class="field-hint">Cargos reservados só podem ser usados pelos dois perfis oficiais. Você pode escolher um cargo personalizado ou nenhum.</small>
+            <small class="field-hint">Escolha um cargo fixo. Cargos privados aparecem somente nos perfis oficiais.</small>
           </div>
 
           <div class="field-group">

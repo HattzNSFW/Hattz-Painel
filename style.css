@@ -3875,29 +3875,19 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub: cartões com o mesmo Liquid Glass da faixa de áudio,
-   preservando os ajustes atuais de brilho, borda, sombra e cantos. */
+/* Glass Hub: base Liquid Glass idêntica à faixa compacta de áudio.
+   Mantém somente o raio configurável dos cartões; o material é o mesmo do player. */
 .stat-card,
 .detail-card {
-  border-color: color-mix(in srgb, var(--text) 22%, transparent);
-  background:
-    linear-gradient(145deg,
-      color-mix(in srgb, #ffffff calc(var(--glass-shine) * .55), transparent),
-      transparent 58%),
-    color-mix(in srgb, var(--card) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+  background: color-mix(in srgb, var(--card) 28%, transparent);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
   backdrop-filter: blur(24px) saturate(150%);
-  box-shadow:
-    0 12px 38px #0006,
-    inset 0 1px 0 #ffffff18;
+  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
 }
 .stat-card::after,
 .detail-card::after {
-  background: linear-gradient(135deg,
-    color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .7), transparent),
-    transparent 38%,
-    transparent 76%,
-    color-mix(in srgb, #beaaff 5%, transparent));
+  content: none;
 }
 .card-lab {
   border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);

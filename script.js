@@ -104,7 +104,7 @@ const DEFAULT_PROFILE = {
   volume: 12,
   gradientIntensity: 55,
   cardRadius: 18,
-  cardGlass: { opacity: 30, blur: 18, shine: 35, reflection: 45, border: 55, shadow: 45, radius: 18 },
+  cardGlass: { opacity: 18, blur: 24, shine: 12, reflection: 14, border: 30, shadow: 34, radius: 16 },
   cardGlassOverrides: {},
 
   tema: "dark",

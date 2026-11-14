@@ -7,6 +7,77 @@
   let page = 1;
   let totalPages = 1;
   let currentProfiles = [];
+  const DEFAULT_PROFILE = {
+    nome: "Seu Nome",
+    usuario: "seuusuario",
+    bio: "Sua identidade, do seu jeito.",
+    verificado: false,
+    verificadoCor: "#729cff",
+    cargo: "",
+    insignias: [],
+    rodape: "",
+    bannerHeadingVisible: true,
+    bannerTitulo: "",
+    bannerSubtitulo: "",
+    bannerHeight: 355,
+    avatarCrop: { x: 50, y: 50, zoom: 100 },
+    bannerCrop: { x: 50, y: 50, zoom: 100 },
+    cardBackgroundCrop: { x: 50, y: 50, zoom: 100 },
+    backgroundCrop: { x: 50, y: 50, zoom: 100 },
+    musicBarBackgroundCrop: { x: 50, y: 50, zoom: 100 },
+    dividerStyle: "ornamental",
+    dividerCustomColorEnabled: false,
+    dividerColor: "#a78bfa",
+    statsTitle: "Em evidência",
+    statsSubtitle: "",
+    detailsTitle: "Um pouco sobre mim",
+    detailsSubtitle: "",
+    animarMidia: true,
+    avatarPausado: false,
+    bannerPausado: false,
+    fundoPausado: false,
+    cardBackgroundPausado: false,
+    bannerOpacity: 100,
+    cardBackgroundOpacity: 100,
+    backgroundOpacity: 34,
+    musicBarBackgroundOpacity: 24,
+    musicPlayerWidth: 360,
+    musicPlayerHeight: 64,
+    musicPlayerX: null,
+    musicPlayerY: null,
+    moldura: "none",
+    raridadeMoldura: "none",
+    molduraCorPersonalizada: false,
+    molduraCor: "#a78bfa",
+    efeitosPerfil: true,
+    fonte: "DM Sans",
+    volume: 12,
+    gradientIntensity: 55,
+    cardRadius: 18,
+    tema: "dark",
+    cores: {
+      background: "#0b0a10",
+      gradient: "#292333",
+      card: "#14121b",
+      accent: "#a78bfa",
+      text: "#f4f0fa",
+      border: "#302a3a"
+    },
+    estatisticas: [
+      { id: "focus", label: "EM FOCO", value: "", icon: "✦" },
+      { id: "activity", label: "ATIVIDADE", value: "", icon: "◷" },
+      { id: "interest", label: "INTERESSE", value: "", icon: "◇" }
+    ],
+    detalhes: [
+      { id: "information", label: "INFORMAÇÃO", value: "", icon: "✧" },
+      { id: "preference", label: "PREFERÊNCIA", value: "", icon: "◇" },
+      { id: "reference", label: "REFERÊNCIA", value: "", icon: "✦" },
+      { id: "link", label: "LINK", value: "", icon: "↗" },
+      { id: "extra-one", label: "EXTRA", value: "", icon: "＋" },
+      { id: "extra-two", label: "EXTRA", value: "", icon: "＋" }
+    ]
+  };
+
   let toastTimer;
 
   function escapeHtml(value) {
@@ -134,7 +205,28 @@
       $("profilesTable").innerHTML = currentProfiles.length ? currentProfiles.map((profile) => {
         const official = ["MT7QTEVMZY", "YGZNK6TMG8"].includes(profile.code);
         const status = profile.status || "active";
-        return `<tr><td><input type="checkbox" class="profile-check" data-code="${escapeHtml(profile.code)}" ${official ? "disabled" : ""}></td><td><span class="code-cell">${escapeHtml(profile.code)}</span>${official ? '<span class="sub-cell">Perfil oficial · protegido</span>' : ""}</td><td>${formatBytes(profile.storage_bytes)}</td><td>${Number(profile.media_count || 0)}</td><td><span class="state ${escapeHtml(status)}">${status === "active" ? "Ativo" : status === "suspended" ? "Suspenso" : "Excluindo"}</span></td><td>${formatDate(profile.updated_at)}</td></tr>`;
+        return `<tr>
+          <td>
+            <input type="checkbox" class="profile-check"
+              data-code="${escapeHtml(profile.code)}"
+              ${official ? "disabled" : ""}>
+          </td>
+          <td>
+            <span class="code-cell">${escapeHtml(profile.code)}</span>
+            ${official
+              ? '<span class="sub-cell">Perfil oficial · protegido</span>'
+              : `<button type="button" class="reset-profile-btn" data-reset-code="${escapeHtml(profile.code)}">Resetar</button>`
+            }
+          </td>
+          <td>${formatBytes(profile.storage_bytes)}</td>
+          <td>${Number(profile.media_count || 0)}</td>
+          <td>
+            <span class="state ${escapeHtml(status)}">
+              ${status === "active" ? "Ativo" : status === "suspended" ? "Suspenso" : "Excluindo"}
+            </span>
+          </td>
+          <td>${formatDate(profile.updated_at)}</td>
+        </tr>`;
       }).join("") : '<tr><td colspan="6" class="empty">Nenhum perfil encontrado.</td></tr>';
       $("profilesPageLabel").textContent = `Página ${page} de ${totalPages} · ${result.total} perfis`;
       $("previousPage").disabled = page <= 1;
@@ -174,6 +266,64 @@
     } catch (error) { notify(error.message); await loadProfiles(); }
     finally { updateSelection(); }
   }
+  async function resetProfile(code) {
+    const officialProfiles = ["MT7QTEVMZY", "YGZNK6TMG8"];
+
+    if (officialProfiles.includes(code)) {
+      notify("Este perfil oficial está protegido.");
+      return;
+    }
+
+    const accepted = window.confirm(
+      \`ATENÇÃO: você está prestes a resetar o perfil \${code}.\n\n\` +
+      "Isso irá:\n" +
+      "• Restaurar todas as configurações ao padrão inicial.\n" +
+      "• Apagar todas as mídias do perfil no Supabase.\n" +
+      "• Remover os registros dessas mídias.\n\n" +
+      "O código, a chave privada, a data de criação e o status serão preservados.\n\n" +
+      "Esta ação é irreversível. Deseja continuar?"
+    );
+
+    if (!accepted) return;
+
+    const confirmation = window.prompt('Para confirmar, digite RESETAR:');
+    if (confirmation !== "RESETAR") {
+      notify("Reset cancelado.");
+      return;
+    }
+
+    const button = document.querySelector(\`[data-reset-code="\${CSS.escape(code)}"]\`);
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Resetando…";
+    }
+
+    try {
+      const result = await api(
+        \`/api/admin/profiles/\${encodeURIComponent(code)}/reset\`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            confirmation: "RESETAR",
+            profile: DEFAULT_PROFILE
+          })
+        }
+      );
+
+      notify(
+        \`Perfil restaurado. \${result.deletedMediaCount} mídia(s) removida(s). \${formatBytes(result.releasedBytes)} liberados.\`
+      );
+
+      await Promise.all([loadProfiles(), loadStorage(), loadOverview()]);
+    } catch (error) {
+      notify(\`Falha ao resetar: \${error.message}\`);
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Resetar";
+      }
+    }
+  }
+
   async function loadStorage() {
     try {
       const data = await api("/api/admin/storage");
@@ -328,6 +478,11 @@
   $("searchIp").addEventListener("click", loadIp);
   $("clearIpEvents").addEventListener("click", clearIpEvents);
   $("reloadAudit").addEventListener("click", loadAudit);
+  $("profilesTable").addEventListener("click", (event) => {
+    const button = event.target.closest("[data-reset-code]");
+    if (!button) return;
+    resetProfile(button.dataset.resetCode);
+  });
 
   if (token) showApp(true); else showApp(false);
 })();

@@ -20,10 +20,11 @@ let sharedMediaManifest = [];
 let sharedProfileLoaded = false;
 let sharedProfileLoadError = "";
 let isOfficialSharedProfile = false;
-const OFFICIAL_BADGE_LABELS = new Set(["OWNER", "FOUNDER", "CREATOR"]);
+const OFFICIAL_PROFILE_CODES = new Set(["MT7QTEVMZY", "YGZNK6TMG8"]);
+const RESERVED_ROLE_LABELS = new Set(["OWNER", "DEV", "FOUNDER", "CREATOR"]);
 
-function isOfficialBadge(value) {
-  return OFFICIAL_BADGE_LABELS.has(String(value || "").trim().toUpperCase());
+function isOfficialLocalProfile() {
+  return OFFICIAL_PROFILE_CODES.has(normalizePublicCode(getSavedShareCode()));
 }
 
 function getShareApiBase() {
@@ -394,9 +395,9 @@ function normalizeProfileData(parsed) {
   normalized.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
   normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
 
-  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
-  const mayUseOfficialRole = IS_PUBLIC_VIEW && isOfficialSharedProfile;
-  if (!mayUseOfficialRole && reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
+  const roleValue = String(normalized.cargo || "").trim().toUpperCase();
+  const mayUseOfficialRole = IS_PUBLIC_VIEW ? isOfficialSharedProfile : isOfficialLocalProfile();
+  if (RESERVED_ROLE_LABELS.has(roleValue) && !mayUseOfficialRole) normalized.cargo = "";
   normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) =>
     badge && (!isBlockedBadge(badge) || (IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge)))
   ))];
@@ -444,11 +445,7 @@ async function loadSharedProfile() {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || "Não foi possível localizar este perfil.");
-  isOfficialSharedProfile = data.official === true
-    && Array.isArray(data.officialBadges)
-    && ["OWNER", "FOUNDER", "CREATOR"].every((badge) =>
-      data.officialBadges.some((item) => String(item).trim().toUpperCase() === badge)
-    );
+  isOfficialSharedProfile = data.official === true;
   profile = normalizeProfileData(data.profile);
   sharedMediaManifest = Array.isArray(data.media) ? data.media : [];
   sharedProfileLoaded = true;
@@ -1054,26 +1051,15 @@ function renderIdentity() {
 
   $("profileBio").textContent = profile.bio || "";
   const roleChip = $("profileRole");
-  const officialRoleLabels = IS_PUBLIC_VIEW && isOfficialSharedProfile
-    ? [...OFFICIAL_BADGE_LABELS]
-    : [];
-  const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i.test(String(profile.cargo || "").trim());
-  const safeRole = blockedRole && !officialRoleLabels.length ? "" : String(profile.cargo || "").trim();
-  const roleItems = [];
-  if (safeRole) {
-    const isReservedOfficialRole = officialRoleLabels.length > 0 && /\b(owner|dono|founder|creator)\b/i.test(safeRole);
-    roleItems.push({ label: safeRole, official: isReservedOfficialRole });
-  }
-  for (const label of officialRoleLabels) {
-    if (!roleItems.some((item) => item.label.toUpperCase() === label)) {
-      roleItems.push({ label, official: true });
-    }
-  }
-  roleChip.innerHTML = roleItems.map((item) =>
-    `<span class="role-chip${item.official ? " owner-role role-chip--official" : ""}"${item.official ? ' data-official="true"' : ""}>${escapeHTML(item.label)}</span>`
-  ).join("");
-  roleChip.hidden = roleItems.length === 0;
-  roleChip.title = roleItems.map((item) => item.label).join(" · ") || "Identificação do perfil";
+  const roleValue = String(profile.cargo || "").trim();
+  const isReservedRole = RESERVED_ROLE_LABELS.has(roleValue.toUpperCase());
+  const mayShowReservedRole = IS_PUBLIC_VIEW ? isOfficialSharedProfile : isOfficialLocalProfile();
+  const safeRole = isReservedRole && !mayShowReservedRole ? "" : roleValue;
+  roleChip.innerHTML = safeRole
+    ? `<span class="role-chip${isReservedRole ? " owner-role role-chip--official" : ""}"${isReservedRole ? ' data-official="true"' : ""}>${escapeHTML(safeRole)}</span>`
+    : "";
+  roleChip.hidden = !safeRole;
+  roleChip.title = safeRole || "Identificação do perfil";
   roleChip.setAttribute("aria-label", roleChip.title);
   const verifiedBadge = $("verifiedBadge");
   const verifiedColor = /^#[0-9a-f]{6}$/i.test(profile.verificadoCor || "")
@@ -1086,10 +1072,7 @@ function renderIdentity() {
 
   $("badges").innerHTML = profile.insignias
     .filter(Boolean)
-    .map((badge) => {
-      const official = IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge);
-      return `<span class="badge${official ? " badge--official" : ""}"${official ? ' data-official="true"' : ""}>${escapeHTML(badge)}</span>`;
-    })
+    .map((badge) => `<span class="badge">${escapeHTML(badge)}</span>`)
     .join("");
 
   document.documentElement.style.setProperty(
@@ -2539,12 +2522,13 @@ function deleteSavedTheme() {
   showToast("Tema excluído.");
 }
 
-const BADGE_PRESETS = ["Verified", "Gamer", "Artist", "Designer", "VIP", "Photographer", "Music", "Technology", "Writer", "Editor", "Collector"];
-const RESERVED_LABELS = /\b(admin|administrator|dev|developer|staff|moderator)\b/i;
-const normalizeBadge = (value) => /^dono$/i.test(String(value).trim()) ? "Owner" : String(value).trim();
-const isBlockedBadge = (value) =>
-  RESERVED_LABELS.test(String(value))
-  || /\b(owner|dono|founder|creator)\b/i.test(String(value));
+const BADGE_PRESETS = ["Developer", "Web Designer", "UI Designer", "Builder", "Creator", "Contributor", "Verified"];
+const BADGE_LOOKUP = new Map(BADGE_PRESETS.map((badge) => [badge.toLowerCase(), badge]));
+const normalizeBadge = (value) => {
+  const label = String(value ?? "").trim();
+  return BADGE_LOOKUP.get(label.toLowerCase()) || label;
+};
+const isBlockedBadge = (value) => !BADGE_LOOKUP.has(String(value ?? "").trim().toLowerCase());
 
 function renderBadgeLibrary() {
   const container = $("badgeLibrary");
@@ -2585,11 +2569,37 @@ function toggleBadgePreset(event) {
   renderBadgeLibrary();
 }
 
+function configureRoleEditor() {
+  const select = $("editRole");
+  const customInput = $("editCustomRole");
+  if (!select || !customInput) return;
+
+  const isOfficial = isOfficialLocalProfile();
+  select.querySelectorAll("[data-reserved-role]").forEach((option) => {
+    option.disabled = !isOfficial;
+  });
+
+  const savedRole = String(profile.cargo || "").trim();
+  const upperRole = savedRole.toUpperCase();
+  if (RESERVED_ROLE_LABELS.has(upperRole)) {
+    select.value = isOfficial ? upperRole : "";
+    customInput.value = "";
+  } else if (savedRole) {
+    select.value = "custom";
+    customInput.value = savedRole;
+  } else {
+    select.value = "";
+    customInput.value = "";
+  }
+  customInput.hidden = select.value !== "custom";
+  customInput.disabled = select.value !== "custom";
+}
+
 function fillEditor() {
   $("editName").value = profile.nome;
   $("editUsername").value = profile.usuario;
   $("editBio").value = profile.bio;
-  $("editRole").value = profile.cargo || "";
+  configureRoleEditor();
   $("editVerified").checked = profile.verificado;
   $("verifiedColor").value = profile.verificadoCor || DEFAULT_PROFILE.verificadoCor;
   $("editBadges").value = profile.insignias.join(", ");
@@ -2664,7 +2674,14 @@ function readIdentityEditor() {
   profile.nome = $("editName").value.trim();
   profile.usuario = normalizeUsername($("editUsername").value);
   profile.bio = $("editBio").value.trim();
-  profile.cargo = $("editRole").value;
+  const selectedRole = $("editRole").value;
+  if (selectedRole === "custom") {
+    profile.cargo = $("editCustomRole").value.trim().slice(0, 40);
+  } else if (RESERVED_ROLE_LABELS.has(selectedRole) && !isOfficialLocalProfile()) {
+    profile.cargo = "";
+  } else {
+    profile.cargo = selectedRole;
+  }
   profile.verificado = $("editVerified").checked;
   profile.verificadoCor = $("verifiedColor").value;
 
@@ -3731,6 +3748,13 @@ function setupEvents() {
 
   $("badgeLibrary").addEventListener("click", toggleBadgePreset);
   $("editBadges").addEventListener("input", renderBadgeLibrary);
+  $("editRole").addEventListener("change", () => {
+    const customInput = $("editCustomRole");
+    const isCustom = $("editRole").value === "custom";
+    customInput.hidden = !isCustom;
+    customInput.disabled = !isCustom;
+    if (isCustom) customInput.focus();
+  });
 
   $("gradientIntensity").addEventListener("input", (event) => {
     profile.gradientIntensity = Number(event.target.value);

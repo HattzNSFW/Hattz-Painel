@@ -15,7 +15,11 @@
   <main class="shell">
     <section id="loginView" class="login-wrap">
       <div class="login-card glass">
-        <div class="brand-mark">H<span>✦</span></div>
+        <button class="brand-avatar-button login-avatar" type="button" data-brand-avatar-trigger aria-label="Escolher foto de perfil">
+          <img id="brandAvatarLogin" alt="Foto de perfil" hidden>
+          <span id="brandAvatarLoginFallback" class="avatar-placeholder" aria-hidden="true">◎</span>
+        </button>
+        <input id="brandAvatarFile" type="file" accept="image/*" hidden>
         <p class="eyebrow">CENTRAL ADMINISTRATIVA</p>
         <h1>Hättz <span>Control</span></h1>
         <p class="muted">Acesso restrito ao administrador principal.</p>
@@ -30,7 +34,10 @@
 
     <section id="appView" hidden>
       <header class="topbar glass">
-        <a class="brand" href="./control.html"><span class="brand-symbol">H✦</span><span>Hättz <b>Control</b><small>ADMIN CONSOLE</small></span></a>
+        <div class="brand-group">
+          <a class="brand" href="./control.html"><span class="brand-avatar" aria-hidden="true"><img id="brandAvatarHeader" alt="" hidden><span id="brandAvatarHeaderFallback" class="avatar-placeholder">◎</span></span><span>Hättz <b>Control</b><small>ADMIN CONSOLE</small></span></a>
+          <button class="avatar-change-button" type="button" data-brand-avatar-trigger>Trocar foto</button>
+        </div>
         <div class="top-actions"><span class="secure-label"><i></i> Sessão protegida</span><button id="logoutButton" class="quiet-button">Sair <span>↗</span></button></div>
       </header>
 
@@ -74,24 +81,54 @@
           </section>
 
           <section class="view" id="view-maintenance">
-            <div class="page-heading"><div><p class="eyebrow">REMOTE CONTROL</p><h1>Modo de manutenção</h1><p class="muted">O bloqueio é aplicado pela API, não apenas pelo site.</p></div></div>
-            <article class="panel glass maintenance-panel"><div class="maintenance-toggle-row"><div><h2>Ativar manutenção global</h2><p class="muted">Perfis oficiais e códigos liberados continuam acessíveis.</p></div><label class="switch"><input id="maintenanceEnabled" type="checkbox"><span></span></label></div><div class="field"><label for="maintenanceTitle">Título</label><input id="maintenanceTitle" maxlength="80" value="Em manutenção"></div><div class="field"><label for="maintenanceMessage">Mensagem</label><textarea id="maintenanceMessage" rows="3" maxlength="500">Voltamos em breve.</textarea></div><div class="field"><label for="maintenanceAllowlist">Códigos liberados (um por linha)</label><textarea id="maintenanceAllowlist" rows="3" placeholder="HTZ-ABCDE-FGHIJ"></textarea><small>Máximo de 100 códigos. Os dois perfis oficiais já são liberados automaticamente.</small></div>
-              <div class="maintenance-editor-head"><div><p class="eyebrow">APARÊNCIA</p><h2>Fundo da manutenção</h2><p class="muted">Personalize a tela pública sem alterar o layout do site.</p></div><span class="editor-chip">LIVE PREVIEW</span></div>
-              <div class="maintenance-editor-grid">
-                <div class="maintenance-controls">
-                  <div class="field"><label for="maintenanceBackgroundFile">Enviar imagem ou vídeo</label><input id="maintenanceBackgroundFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"><small>JPG, PNG, WEBP, GIF, MP4, WEBM ou MOV · até 75 MB. O arquivo fica no Supabase Storage.</small><button type="button" id="uploadMaintenanceBackground" class="secondary">Enviar fundo</button></div>
-                  <div class="field"><label for="maintenanceBackgroundUrl">Ou usar URL HTTPS</label><input id="maintenanceBackgroundUrl" type="url" placeholder="https://..."><small>Use um link direto para uma imagem ou vídeo.</small></div>
-                  <div class="field"><label for="maintenanceBackgroundType">Tipo de fundo</label><select id="maintenanceBackgroundType"><option value="color">Gradiente escuro</option><option value="image">Imagem</option><option value="video">Vídeo</option></select></div>
-                  <div class="field"><label for="maintenanceAccent">Cor de destaque</label><input id="maintenanceAccent" type="color" value="#9b7add"></div>
-                  <div class="field range-field"><label for="maintenanceOverlay">Escurecimento <output id="maintenanceOverlayValue">62%</output></label><input id="maintenanceOverlay" type="range" min="0" max="95" value="62"></div>
-                  <div class="field range-field"><label for="maintenanceBlur">Desfoque <output id="maintenanceBlurValue">0 px</output></label><input id="maintenanceBlur" type="range" min="0" max="30" value="0"></div>
-                  <div class="field"><button type="button" id="clearMaintenanceBackground" class="quiet-button">Remover mídia de fundo</button></div>
+            <div class="page-heading">
+              <div><p class="eyebrow">REMOTE CONTROL</p><h1>Manutenção</h1><p class="muted">Controle o acesso público e personalize a tela exibida durante a manutenção.</p></div>
+            </div>
+            <article class="panel glass maintenance-panel">
+              <section class="maintenance-section maintenance-status-section">
+                <div class="maintenance-section-heading"><span class="section-number">01</span><div><p class="eyebrow">CONTROLE DE ACESSO</p><h2>Estado do sistema</h2><p class="muted">Ative o bloqueio global quando precisar fazer ajustes no site.</p></div></div>
+                <div class="maintenance-toggle-card">
+                  <div><strong>Ativar modo de manutenção</strong><small>Perfis oficiais e códigos liberados continuam acessíveis.</small></div>
+                  <label class="switch"><input id="maintenanceEnabled" type="checkbox"><span></span></label>
                 </div>
-                <div class="maintenance-preview-wrap"><div id="maintenancePreview" class="maintenance-preview"><div class="maintenance-preview-shade"></div><div class="maintenance-preview-card"><span class="preview-mark">H✦</span><small>HÄTTZ SHARE</small><h3 id="maintenancePreviewTitle">Em manutenção</h3><p id="maintenancePreviewMessage">Voltamos em breve.</p><span class="preview-foot">VOLTAREMOS EM BREVE</span></div></div><small>Prévia aproximada da tela exibida aos visitantes.</small></div>
-              </div>
-              <button id="saveMaintenance" class="primary">Salvar configuração <span>↗</span></button></article>
-          </section>
+              </section>
 
+              <section class="maintenance-section">
+                <div class="maintenance-section-heading"><span class="section-number">02</span><div><p class="eyebrow">COMUNICAÇÃO</p><h2>Mensagem para visitantes</h2><p class="muted">Defina o título e explique brevemente o que está acontecendo.</p></div></div>
+                <div class="maintenance-fields-grid">
+                  <div class="field"><label for="maintenanceTitle">Título da tela</label><input id="maintenanceTitle" maxlength="80" value="Em manutenção" placeholder="Em manutenção"></div>
+                  <div class="field"><label for="maintenanceMessage">Mensagem</label><textarea id="maintenanceMessage" rows="3" maxlength="500">Voltamos em breve.</textarea></div>
+                </div>
+              </section>
+
+              <section class="maintenance-section">
+                <div class="maintenance-section-heading"><span class="section-number">03</span><div><p class="eyebrow">EXCEÇÕES</p><h2>Acesso liberado</h2><p class="muted">Códigos autorizados podem continuar acessando mesmo com a manutenção ativa.</p></div></div>
+                <div class="field"><label for="maintenanceAllowlist">Códigos liberados <span class="field-hint">um por linha</span></label><textarea id="maintenanceAllowlist" rows="3" placeholder="HTZ-ABCDE-FGHIJ"></textarea><small>Máximo de 100 códigos. Os dois perfis oficiais já são liberados automaticamente.</small></div>
+              </section>
+
+              <section class="maintenance-section appearance-section">
+                <div class="maintenance-editor-head">
+                  <div><div class="maintenance-section-heading compact"><span class="section-number">04</span><div><p class="eyebrow">PERSONALIZAÇÃO VISUAL</p><h2>Aparência da tela</h2><p class="muted">Escolha um fundo, ajuste as cores e acompanhe o resultado na prévia.</p></div></div></div>
+                  <span class="editor-chip">PRÉVIA AO VIVO</span>
+                </div>
+                <div class="maintenance-editor-grid">
+                  <div class="maintenance-controls">
+                    <div class="field"><label for="maintenanceBackgroundFile">Imagem ou vídeo de fundo</label><input id="maintenanceBackgroundFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/quicktime"><small>JPG, PNG, WEBP, GIF, MP4, WEBM ou MOV · até 75 MB. O arquivo fica no Supabase Storage.</small><button type="button" id="uploadMaintenanceBackground" class="secondary">Enviar fundo</button></div>
+                    <div class="field"><label for="maintenanceBackgroundUrl">URL HTTPS do fundo</label><input id="maintenanceBackgroundUrl" type="url" placeholder="https://..."><small>Opcional: use um link direto para uma imagem ou vídeo.</small></div>
+                    <div class="maintenance-fields-grid compact-grid">
+                      <div class="field"><label for="maintenanceBackgroundType">Tipo de fundo</label><select id="maintenanceBackgroundType"><option value="color">Gradiente escuro</option><option value="image">Imagem</option><option value="video">Vídeo</option></select></div>
+                      <div class="field"><label for="maintenanceAccent">Cor de destaque</label><input id="maintenanceAccent" type="color" value="#9b7add"></div>
+                    </div>
+                    <div class="field range-field"><label for="maintenanceOverlay">Escurecimento <output id="maintenanceOverlayValue">62%</output></label><input id="maintenanceOverlay" type="range" min="0" max="95" value="62"></div>
+                    <div class="field range-field"><label for="maintenanceBlur">Desfoque <output id="maintenanceBlurValue">0 px</output></label><input id="maintenanceBlur" type="range" min="0" max="30" value="0"></div>
+                    <button type="button" id="clearMaintenanceBackground" class="quiet-button clear-background-button">Remover mídia de fundo</button>
+                  </div>
+                  <div class="maintenance-preview-wrap"><div id="maintenancePreview" class="maintenance-preview"><div class="maintenance-preview-shade"></div><div class="maintenance-preview-card"><span class="preview-avatar"><img id="maintenancePreviewAvatar" alt="" hidden><span id="maintenancePreviewAvatarFallback">◎</span></span><small>HÄTTZ SHARE</small><h3 id="maintenancePreviewTitle">Em manutenção</h3><p id="maintenancePreviewMessage">Voltamos em breve.</p><span class="preview-foot">VOLTAREMOS EM BREVE</span></div></div><small>Prévia aproximada da tela exibida aos visitantes.</small></div>
+                </div>
+              </section>
+              <div class="maintenance-save-row"><span>As alterações só entram em vigor depois de salvar.</span><button id="saveMaintenance" class="primary">Salvar configuração <span>↗</span></button></div>
+            </article>
+          </section>
           <section class="view" id="view-ip">
             <div class="page-heading"><div><p class="eyebrow">RESTRICTED INTELLIGENCE</p><h1>IP Intelligence</h1><p class="muted">Dados sensíveis visíveis somente nesta sessão de administrador principal.</p></div><button id="reloadIp" class="quiet-button">↻ Atualizar</button></div>
             <div class="privacy-banner"><span>⌁</span><div><strong>Acesso exclusivo</strong><p>IPs são armazenados criptografados. Outros administradores e usuários não possuem endpoint de leitura.</p></div></div>
@@ -105,7 +142,7 @@
         </section>
       </div>
       <div id="toast" class="toast" role="status" aria-live="polite"></div>
-      <footer class="footer">HÄTTZ CONTROL <span>✦</span> PRIVATE ADMINISTRATION</footer>
+      <footer class="footer">HÄTTZ CONTROL <span>·</span> PRIVATE ADMINISTRATION</footer>
     </section>
   </main>
   <script src="share-config.js"></script>

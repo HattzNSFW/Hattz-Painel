@@ -3820,3 +3820,111 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
 .remote-maintenance-card h1 { margin: 0 0 14px; color: #f4f0fa; font: 600 clamp(26px, 5vw, 34px)/1.15 Manrope, sans-serif; }
 .remote-maintenance-message { margin: 0 auto; max-width: 36ch; color: #c2bdcc; font: 400 14px/1.8 "DM Sans", sans-serif; white-space: pre-wrap; }
 .remote-maintenance-foot { display: block; margin-top: 28px; color: #8f879d; font: 600 10px/1.4 Manrope, sans-serif; letter-spacing: .12em; text-transform: uppercase; }
+
+/* HÄTTZ SHARE — correção de prioridade do editor */
+#editorModal.modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 99999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  display: none !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 18px !important;
+  background: rgba(5, 4, 8, .84) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+#editorModal.modal-backdrop.open {
+  display: flex !important;
+}
+#editorModal .editor-modal {
+  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  width: min(820px, 100%) !important;
+  height: min(94vh, 940px) !important;
+  max-height: 94vh !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  margin: auto !important;
+  border: 1px solid #393044 !important;
+  border-radius: 20px !important;
+  background: #111019 !important;
+  color: #f4f0fa !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,.65) !important;
+  text-align: left !important;
+}
+#editorModal .modal-header,
+#editorModal .editor-tabs,
+#editorModal .modal-footer {
+  flex: 0 0 auto !important;
+}
+#editorModal .modal-body {
+  display: block !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  padding: 22px clamp(16px, 3vw, 30px) !important;
+}
+#editorModal .editor-tabs {
+  display: flex !important;
+  gap: 5px !important;
+  padding: 0 22px !important;
+  border-bottom: 1px solid #292432 !important;
+}
+#editorModal .tab-button {
+  flex: 1 1 0 !important;
+  min-width: 76px !important;
+  padding: 12px 9px !important;
+  border: 0 !important;
+  border-bottom: 2px solid transparent !important;
+  background: transparent !important;
+  color: #aaa1b7 !important;
+  cursor: pointer !important;
+}
+#editorModal .field-group {
+  display: block !important;
+  margin: 0 0 20px !important;
+}
+#editorModal .field-group > label:first-child {
+  display: block !important;
+  margin: 0 0 8px !important;
+  color: #ded8e8 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+#editorModal input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+#editorModal select,
+#editorModal textarea {
+  max-width: 100% !important;
+  border: 1px solid #393044 !important;
+  border-radius: 9px !important;
+  background: #191620 !important;
+  color: #f4f0fa !important;
+  font: inherit !important;
+}
+#editorModal button {
+  font: inherit;
+  cursor: pointer;
+}
+#editorModal .close-button,
+#editorModal .tab-button,
+#editorModal .primary-button,
+#editorModal .secondary-button,
+#editorModal .danger-button {
+  border-radius: 9px !important;
+}
+@media (max-width: 650px) {
+  #editorModal.modal-backdrop { padding: 6px !important; }
+  #editorModal .editor-modal {
+    width: 100% !important;
+    height: 96dvh !important;
+    max-height: 96dvh !important;
+    border-radius: 14px !important;
+  }
+  #editorModal .editor-tabs { padding-inline: 8px !important; }
+  #editorModal .modal-body { padding: 14px 12px !important; }
+}
+

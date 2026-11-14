@@ -711,6 +711,29 @@
             <button class="text-button field-reset-button" id="resetThemeColors" type="button">Restaurar as seis cores originais</button>
           </div>
 
+          <section class="field-group card-lab" aria-labelledby="cardLabTitle">
+            <div class="card-lab-heading">
+              <div>
+                <span class="card-lab-kicker">HÄTTZ STUDIO · DESIGN LAB</span>
+                <h3 id="cardLabTitle">Card Lab <span>Liquid Glass</span></h3>
+                <p>Crie cartões translúcidos com profundidade, brilho e reflexos. Ajuste tudo globalmente ou personalize um cartão.</p>
+              </div>
+              <span class="card-lab-icon" aria-hidden="true">◇</span>
+            </div>
+            <label for="cardLabTarget">Aplicar ajustes em</label>
+            <select class="text-input" id="cardLabTarget"><option value="global">Todos os cartões · Global</option></select>
+            <div class="card-lab-controls">
+              <label class="range-field"><span class="range-heading"><span>Transparência</span><output id="cardGlassOpacityValue">30%</output></span><input class="range-input" type="range" id="cardGlassOpacity" min="0" max="85" value="30"></label>
+              <label class="range-field"><span class="range-heading"><span>Desfoque · Blur</span><output id="cardGlassBlurValue">18 px</output></span><input class="range-input" type="range" id="cardGlassBlur" min="0" max="36" value="18"></label>
+              <label class="range-field"><span class="range-heading"><span>Brilho</span><output id="cardGlassShineValue">35%</output></span><input class="range-input" type="range" id="cardGlassShine" min="0" max="100" value="35"></label>
+              <label class="range-field"><span class="range-heading"><span>Reflexo</span><output id="cardGlassReflectionValue">45%</output></span><input class="range-input" type="range" id="cardGlassReflection" min="0" max="100" value="45"></label>
+              <label class="range-field"><span class="range-heading"><span>Borda luminosa</span><output id="cardGlassBorderValue">55%</output></span><input class="range-input" type="range" id="cardGlassBorder" min="0" max="100" value="55"></label>
+              <label class="range-field"><span class="range-heading"><span>Profundidade</span><output id="cardGlassShadowValue">45%</output></span><input class="range-input" type="range" id="cardGlassShadow" min="0" max="100" value="45"></label>
+              <label class="range-field card-lab-radius"><span class="range-heading"><span>Arredondamento</span><output id="cardGlassRadiusValue">18 px</output></span><input class="range-input" type="range" id="cardGlassRadius" min="8" max="32" value="18"></label>
+            </div>
+            <div class="card-lab-actions"><button class="text-button" id="resetCardGlassTarget" type="button">Restaurar este ajuste</button><span>Prévia em tempo real · Salve para manter no perfil</span></div>
+          </section>
+
           <div class="field-group divider-settings">
             <label>Divisória entre seções</label>
             <select class="text-input" id="dividerStyle">

@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0b0a10">
-  <script>document.documentElement.classList.add("hattz-maintenance-checking");</script>
-  <style>html.hattz-maintenance-checking body{visibility:hidden!important}</style>
   <title>Hättz — Personal Space</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -89,7 +87,7 @@
               </span>
             </div>
 
-            <div class="profile-meta"><p class="username" id="profileUsername">@seuusuario</p><span class="role-chip-list" id="profileRole" hidden></span></div>
+            <div class="profile-meta"><p class="username" id="profileUsername">@seuusuario</p><span class="role-chip" id="profileRole" hidden></span></div>
             <p class="bio" id="profileBio">Sua identidade, do seu jeito.</p>
             <div class="badges" id="badges"></div>
           </div>
@@ -167,7 +165,7 @@
 
       <header class="modal-header">
         <div>
-          <h2 id="editorTitle">Hättz Studio</h2>
+          <h2 id="editorTitle">Editar espaço</h2>
           <span class="owner-mark" title="Proprietário do perfil">OWNER · HÄTTZ</span>
         </div>
         <button class="close-button" id="closeEditor" aria-label="Fechar">×</button>
@@ -208,22 +206,15 @@
           </div>
 
           <div class="field-group">
-            <label for="editRole">Cargo principal</label>
+            <label for="editRole">Cargo do perfil</label>
             <select class="text-input" id="editRole">
-              <option value="">Nenhum cargo</option>
-              <option value="MEMBRO">Membro</option>
+              <option value="">Sem identificação</option>
+              <option value="Membro">Membro</option>
+              <option value="Artista">Artista</option>
+              <option value="Designer">Designer</option>
               <option value="VIP">VIP</option>
-              <option value="APOIADOR">Apoiador</option>
-              <option value="PARCEIRO">Parceiro</option>
-              <option value="INFLUENCIADOR">Influenciador</option>
-              <option value="VETERANO">Veterano</option>
-              <option value="STREAMER">Streamer</option>
-              <option value="OWNER" data-reserved-role>OWNER</option>
-              <option value="DEV" data-reserved-role>DEV</option>
-              <option value="FOUNDER" data-reserved-role>FOUNDER</option>
-              <option value="CREATOR" data-reserved-role>CREATOR</option>
             </select>
-            <small class="field-hint">Escolha um cargo fixo. Cargos privados aparecem somente nos perfis oficiais.</small>
+            <small class="field-hint">Owner · Hättz é uma identificação reservada e não pode ser atribuída a perfis comuns.</small>
           </div>
 
           <div class="field-group">
@@ -248,9 +239,8 @@
           </div>
 
           <div class="field-group">
-            <label for="editBadges">Tags do perfil</label>
-            <input class="text-input" id="editBadges" placeholder="Selecione as tags abaixo" aria-describedby="badgeHint">
-            <small class="field-hint" id="badgeHint">Escolha quantas quiser. As tags selecionadas aparecem no perfil e são salvas junto com ele.</small>
+            <label for="editBadges">Tags personalizadas</label>
+            <input class="text-input" id="editBadges" placeholder="Ex.: Criador, Fotografia, Música, Tecnologia">
             <div class="badge-library" id="badgeLibrary" aria-label="Biblioteca de insígnias"></div>
           </div>
 
@@ -721,39 +711,6 @@
             <button class="text-button field-reset-button" id="resetThemeColors" type="button">Restaurar as seis cores originais</button>
           </div>
 
-          <section class="field-group card-lab" aria-labelledby="cardLabTitle">
-            <div class="card-lab-heading">
-              <div>
-                <span class="card-lab-kicker">HÄTTZ STUDIO · DESIGN LAB</span>
-                <h3 id="cardLabTitle">Card Lab <span>Liquid Glass</span></h3>
-                <p>Crie cartões translúcidos com profundidade, brilho e reflexos. Ajuste tudo globalmente ou personalize um cartão.</p>
-              </div>
-              <span class="card-lab-icon" aria-hidden="true">◇</span>
-            </div>
-            <label for="cardLabTarget">Aplicar ajustes em</label>
-            <select class="text-input" id="cardLabTarget"><option value="global">Todos os cartões · Global</option></select>
-            <label for="cardGlassStyle">Módulo visual</label>
-            <select class="text-input" id="cardGlassStyle">
-              <option value="liquid-glass">Liquid Glass · Vidro líquido</option>
-              <option value="metallic">Metallic · Metal acetinado</option>
-              <option value="layered-depth">Layered Depth · Camadas profundas</option>
-              <option value="liquid-chrome">Liquid Chrome · Cromo fluido</option>
-              <option value="minimal-premium">Minimal Premium · Minimalista premium</option>
-              <option value="soft-neumorphism">Soft Neumorphism · Relevo suave</option>
-              <option value="holographic">Holographic · Holográfico</option>
-            </select>
-            <div class="card-lab-controls">
-              <label class="range-field"><span class="range-heading"><span>Transparência</span><output id="cardGlassOpacityValue">18%</output></span><input class="range-input" type="range" id="cardGlassOpacity" min="0" max="85" value="18"></label>
-              <label class="range-field"><span class="range-heading"><span>Desfoque · Blur</span><output id="cardGlassBlurValue">24 px</output></span><input class="range-input" type="range" id="cardGlassBlur" min="0" max="36" value="24"></label>
-              <label class="range-field"><span class="range-heading"><span>Brilho</span><output id="cardGlassShineValue">4%</output></span><input class="range-input" type="range" id="cardGlassShine" min="0" max="100" value="4"></label>
-              <label class="range-field"><span class="range-heading"><span>Reflexo</span><output id="cardGlassReflectionValue">5%</output></span><input class="range-input" type="range" id="cardGlassReflection" min="0" max="100" value="5"></label>
-              <label class="range-field"><span class="range-heading"><span>Borda luminosa</span><output id="cardGlassBorderValue">30%</output></span><input class="range-input" type="range" id="cardGlassBorder" min="0" max="100" value="30"></label>
-              <label class="range-field"><span class="range-heading"><span>Profundidade</span><output id="cardGlassShadowValue">34%</output></span><input class="range-input" type="range" id="cardGlassShadow" min="0" max="100" value="34"></label>
-              <label class="range-field card-lab-radius"><span class="range-heading"><span>Arredondamento</span><output id="cardGlassRadiusValue">16 px</output></span><input class="range-input" type="range" id="cardGlassRadius" min="8" max="32" value="16"></label>
-            </div>
-            <div class="card-lab-actions"><button class="text-button" id="resetCardGlassTarget" type="button">Restaurar este ajuste</button><span>Prévia em tempo real · Salve para manter no perfil</span></div>
-          </section>
-
           <div class="field-group divider-settings">
             <label>Divisória entre seções</label>
             <select class="text-input" id="dividerStyle">
@@ -921,8 +878,8 @@
     </section>
   </div>
 
-  <script src="maintenance.js"></script>
   <script src="share-config.js"></script>
+  <script src="maintenance.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

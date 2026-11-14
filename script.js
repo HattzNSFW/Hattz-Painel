@@ -2569,7 +2569,7 @@ function toggleBadgePreset(event) {
   renderBadgeLibrary();
 }
 
-const PUBLIC_ROLE_LABELS = new Set(["MEMBRO", "VIP", "APOIADOR", "PARCEIRO", "CRIADOR", "ARTISTA", "STREAMER"]);
+const PUBLIC_ROLE_LABELS = new Set(["MEMBRO", "VIP", "APOIADOR", "PARCEIRO", "INFLUENCIADOR", "VETERANO", "STREAMER"]);
 
 function configureRoleEditor() {
   const select = $("editRole");

@@ -3875,28 +3875,29 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub: menos efeito translúcido, mais superfície escura e legível. */
+/* Glass Hub: cartões com o mesmo Liquid Glass da faixa de áudio,
+   preservando os ajustes atuais de brilho, borda, sombra e cantos. */
 .stat-card,
 .detail-card {
-  border-color: color-mix(in srgb, var(--border) 78%, #ffffff 22%);
+  border-color: color-mix(in srgb, var(--text) 22%, transparent);
   background:
     linear-gradient(145deg,
-      color-mix(in srgb, #ffffff calc(var(--glass-shine) * .42), transparent),
-      transparent 62%),
-    color-mix(in srgb, var(--card) calc(100% - var(--glass-opacity) * .38), #111015);
-  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * .58)) saturate(112%);
-  backdrop-filter: blur(calc(var(--glass-blur) * .58)) saturate(112%);
+      color-mix(in srgb, #ffffff calc(var(--glass-shine) * .55), transparent),
+      transparent 58%),
+    color-mix(in srgb, var(--card) 28%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
   box-shadow:
-    0 10px 26px color-mix(in srgb, #000000 calc(var(--glass-shadow) * .7), transparent),
-    inset 0 1px 0 color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .45), transparent);
+    0 12px 38px #0006,
+    inset 0 1px 0 #ffffff18;
 }
 .stat-card::after,
 .detail-card::after {
   background: linear-gradient(135deg,
-    color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .42), transparent),
+    color-mix(in srgb, #ffffff calc(var(--glass-reflection) * .7), transparent),
     transparent 38%,
-    transparent 78%,
-    color-mix(in srgb, #beaaff 3%, transparent));
+    transparent 76%,
+    color-mix(in srgb, #beaaff 5%, transparent));
 }
 .card-lab {
   border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);

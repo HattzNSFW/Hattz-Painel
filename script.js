@@ -600,8 +600,12 @@ const CARD_GLASS_STYLES = ["liquid-glass", "metallic", "layered-depth", "liquid-
 function cardGlassInputId(key) { return "cardGlass" + key[0].toUpperCase() + key.slice(1); }
 function getCardGlassTargetKey() { return $("cardLabTarget")?.value || "global"; }
 function getCardGlassTargetStyle(target = getCardGlassTargetKey()) {
-  if (target === "global") return profile.cardGlass || structuredClone(DEFAULT_PROFILE.cardGlass);
-  return profile.cardGlassOverrides?.[target] || profile.cardGlass || structuredClone(DEFAULT_PROFILE.cardGlass);
+  const globalStyle = profile.cardGlass || structuredClone(DEFAULT_PROFILE.cardGlass);
+  if (target === "global") return globalStyle;
+  return {
+    ...globalStyle,
+    ...(profile.cardGlassOverrides?.[target] || {})
+  };
 }
 function updateCardGlassLabels(style) {
   const units = { opacity: "%", blur: " px", shine: "%", reflection: "%", border: "%", shadow: "%", radius: " px" };
@@ -631,13 +635,13 @@ function applyCardGlassSettings() {
   document.querySelectorAll("[data-card-glass-key]").forEach((card) => {
     Object.keys(values).forEach((property) => card.style.removeProperty(property));
     const override = profile.cardGlassOverrides?.[card.dataset.cardGlassKey];
-    const effective = override || global;
+    const effective = override ? { ...global, ...override } : global;
     card.dataset.cardGlassStyle = CARD_GLASS_STYLES.includes(effective.style) ? effective.style : "liquid-glass";
     if (!override) return;
-    card.style.setProperty("--glass-opacity", override.opacity + "%"); card.style.setProperty("--glass-blur", override.blur + "px");
-    card.style.setProperty("--glass-shine", override.shine + "%"); card.style.setProperty("--glass-reflection", override.reflection + "%");
-    card.style.setProperty("--glass-border", override.border + "%"); card.style.setProperty("--glass-shadow", override.shadow + "%");
-    card.style.setProperty("--glass-radius", override.radius + "px");
+    card.style.setProperty("--glass-opacity", effective.opacity + "%"); card.style.setProperty("--glass-blur", effective.blur + "px");
+    card.style.setProperty("--glass-shine", effective.shine + "%"); card.style.setProperty("--glass-reflection", effective.reflection + "%");
+    card.style.setProperty("--glass-border", effective.border + "%"); card.style.setProperty("--glass-shadow", effective.shadow + "%");
+    card.style.setProperty("--glass-radius", effective.radius + "px");
   });
 }
 function updateCardGlassFromControls() {

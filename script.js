@@ -353,6 +353,11 @@ function normalizeProfileData(parsed) {
     shadow: clampNumber(glassSource.shadow, 0, 100, glassDefaults.shadow),
     radius: clampNumber(glassSource.radius, 8, 32, glassDefaults.radius)
   };
+  // Migra somente o conjunto antigo de valores padrão; ajustes personalizados são preservados.
+  const legacyGlassDefaults = { opacity: 30, blur: 18, shine: 35, reflection: 45, border: 55, shadow: 45, radius: 18 };
+  if (Object.keys(legacyGlassDefaults).every((key) => Number(glassSource[key]) === legacyGlassDefaults[key])) {
+    normalized.cardGlass = structuredClone(glassDefaults);
+  }
   normalized.cardGlassOverrides = {};
   if (parsed.cardGlassOverrides && typeof parsed.cardGlassOverrides === "object" && !Array.isArray(parsed.cardGlassOverrides)) {
     Object.entries(parsed.cardGlassOverrides).slice(0, 100).forEach(([key, value]) => {

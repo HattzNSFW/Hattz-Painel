@@ -395,7 +395,8 @@ function normalizeProfileData(parsed) {
   normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
 
   const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
-  if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
+  const mayUseOfficialRole = IS_PUBLIC_VIEW && isOfficialSharedProfile;
+  if (!mayUseOfficialRole && reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
   normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) =>
     badge && (!isBlockedBadge(badge) || (IS_PUBLIC_VIEW && isOfficialSharedProfile && isOfficialBadge(badge)))
   ))];
@@ -1053,12 +1054,26 @@ function renderIdentity() {
 
   $("profileBio").textContent = profile.bio || "";
   const roleChip = $("profileRole");
+  const officialRoleLabels = IS_PUBLIC_VIEW && isOfficialSharedProfile
+    ? [...OFFICIAL_BADGE_LABELS]
+    : [];
   const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i.test(String(profile.cargo || "").trim());
-  const safeRole = blockedRole ? "" : profile.cargo;
-  roleChip.textContent = safeRole || "";
-  roleChip.hidden = !safeRole;
-  roleChip.classList.toggle("owner-role", /^(owner|dono)$/i.test(safeRole));
-  roleChip.title = safeRole || "Identificação do perfil";
+  const safeRole = blockedRole && !officialRoleLabels.length ? "" : String(profile.cargo || "").trim();
+  const roleItems = [];
+  if (safeRole) {
+    const isReservedOfficialRole = officialRoleLabels.length > 0 && /\b(owner|dono|founder|creator)\b/i.test(safeRole);
+    roleItems.push({ label: safeRole, official: isReservedOfficialRole });
+  }
+  for (const label of officialRoleLabels) {
+    if (!roleItems.some((item) => item.label.toUpperCase() === label)) {
+      roleItems.push({ label, official: true });
+    }
+  }
+  roleChip.innerHTML = roleItems.map((item) =>
+    `<span class="role-chip${item.official ? " owner-role role-chip--official" : ""}"${item.official ? ' data-official="true"' : ""}>${escapeHTML(item.label)}</span>`
+  ).join("");
+  roleChip.hidden = roleItems.length === 0;
+  roleChip.title = roleItems.map((item) => item.label).join(" · ") || "Identificação do perfil";
   roleChip.setAttribute("aria-label", roleChip.title);
   const verifiedBadge = $("verifiedBadge");
   const verifiedColor = /^#[0-9a-f]{6}$/i.test(profile.verificadoCor || "")

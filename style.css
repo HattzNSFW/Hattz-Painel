@@ -3915,7 +3915,7 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
     color-mix(in srgb, #fff var(--glass-reflection, 14%), transparent),
     transparent 38%,
     transparent 76%,
-    color-mix(in srgb, #beaaff calc(var(--glass-reflection, 14%) * .24), transparent)
+    color-mix(in srgb, #beaaff var(--glass-reflection, 14%), transparent)
   );
 }
 .stat-card > *,

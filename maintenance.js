@@ -65,7 +65,20 @@
       if (!response.ok) throw new Error("Maintenance config unavailable");
       const config = await response.json();
 
-      if (config.enabled === true) {
+      const allowedProfiles = new Set([
+        "MT7QTEVMZY",
+        "YGZNK6TMG8"
+      ]);
+      const requestedCode = new URLSearchParams(window.location.search)
+        .get("share") || "";
+      const normalizedCode = String(requestedCode)
+        .trim()
+        .toUpperCase()
+        .replace(/[^A-Z0-9]/g, "")
+        .replace(/^HTZ/, "");
+      const isAllowedProfile = allowedProfiles.has(normalizedCode);
+
+      if (config.enabled === true && !isAllowedProfile) {
         const screen = document.createElement("main");
         screen.id = "hattz-maintenance-screen";
         screen.setAttribute("role", "status");

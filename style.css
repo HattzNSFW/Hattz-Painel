@@ -3876,59 +3876,31 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub · Liquid Glass discreto, com destaque herdado do tema ativo. */
+/* Glass Hub · mesma base Liquid Glass da faixa de áudio. */
 .stat-card,
 .detail-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--border));
+  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
   border-radius: var(--glass-radius, var(--card-radius, 16px));
-  background:
-    linear-gradient(
-      135deg,
-      color-mix(in srgb, var(--accent) 1.5%, transparent),
-      transparent 54%
-    ),
-    color-mix(in srgb, var(--card) var(--glass-opacity, 18%), transparent);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(125%);
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(125%);
-  box-shadow:
-    0 9px 24px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 1.5%, transparent);
+  background: color-mix(in srgb, var(--card) 28%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(150%);
+  backdrop-filter: blur(24px) saturate(150%);
+  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
   transition:
     border-color var(--transition-fast),
-    background var(--transition-fast),
     transform var(--transition-fast),
     box-shadow var(--transition-fast);
 }
 .stat-card::after,
 .detail-card::after {
-  content: "";
-  position: absolute;
-  z-index: 0;
-  inset: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--accent) 1.5%, transparent),
-    transparent 42%,
-    transparent 78%,
-    color-mix(in srgb, var(--accent) 1%, transparent)
-  );
-  opacity: .35;
+  content: none;
 }
 .stat-card:hover,
 .detail-card:hover {
-  border-color: color-mix(in srgb, var(--accent) 58%, var(--border));
-  background:
-    linear-gradient(135deg, color-mix(in srgb, var(--accent) 3%, transparent), transparent 58%),
-    color-mix(in srgb, var(--card) var(--glass-opacity, 18%), transparent);
-  box-shadow:
-    0 10px 26px color-mix(in srgb, #000 var(--glass-shadow, 34%), transparent),
-    0 0 0 1px color-mix(in srgb, var(--accent) 4%, transparent),
-    inset 0 1px 0 color-mix(in srgb, var(--accent) 3%, transparent);
+  border-color: color-mix(in srgb, var(--text) 30%, transparent);
+  box-shadow: 0 12px 38px #0006, inset 0 1px 0 #ffffff18;
 }
 .stat-card > *,
 .detail-card > * {
@@ -4019,10 +3991,3 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
 }
 
 
-/* Garante que as superfícies do Glass Hub nunca voltem ao fundo sólido antigo. */
-.profile-content .stat-card,
-.profile-content .detail-card {
-  background-color: transparent;
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
-}

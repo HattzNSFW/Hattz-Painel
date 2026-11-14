@@ -3876,25 +3876,34 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   --glass-radius: 16px;
 }
 
-/* Glass Hub · Liquid Glass inspirado no iOS 26, com a base translúcida do player. */
+/* Glass Hub · painel Liquid Glass com corpo, refração e leitura confortável. */
 .stat-card,
 .detail-card {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  border: 1px solid color-mix(in srgb, var(--text) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--text) 25%, var(--accent) 10%);
   border-radius: var(--glass-radius, var(--card-radius, 16px));
-  background: color-mix(
-    in srgb,
-    var(--card) calc(var(--glass-opacity, 18%) + 10%),
-    transparent
-  );
-  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(150%);
-  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(150%);
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, #fff var(--glass-shine, 6%), transparent),
+      transparent 42%
+    ),
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--accent) 5%, transparent),
+      transparent 58%
+    ),
+    color-mix(in srgb, var(--card) var(--glass-opacity, 34%), transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
+  backdrop-filter: blur(var(--glass-blur, 24px)) saturate(155%);
   box-shadow:
-    0 12px 38px #0006,
-    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
-    inset 0 0 0 1px color-mix(in srgb, #fff 3%, transparent);
+    0 14px 36px #0007,
+    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 7%), transparent),
+    inset 0 -1px 0 #0003,
+    inset 1px 0 0 #ffffff0a,
+    inset -1px 0 0 #ffffff0a;
   transition:
     border-color var(--transition-fast),
     transform var(--transition-fast),
@@ -3902,7 +3911,7 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
     background var(--transition-fast);
 }
 
-/* Reflexo de superfície e brilho refratado nas bordas, sem aparência neon. */
+/* Lâmina de luz discreta: dá volume de vidro sem atravessar o texto. */
 .stat-card::after,
 .detail-card::after {
   content: "";
@@ -3913,18 +3922,18 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
   pointer-events: none;
   background:
     radial-gradient(
-      ellipse at 12% 0%,
-      color-mix(in srgb, #fff var(--glass-shine, 4%), transparent),
-      transparent 48%
+      ellipse at 14% 0%,
+      color-mix(in srgb, #fff var(--glass-shine, 6%), transparent),
+      transparent 52%
     ),
     linear-gradient(
-      145deg,
-      color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
-      transparent 30%,
-      transparent 72%,
-      color-mix(in srgb, var(--accent) 3%, transparent)
+      125deg,
+      color-mix(in srgb, #fff var(--glass-reflection, 7%), transparent),
+      transparent 24%,
+      transparent 76%,
+      color-mix(in srgb, var(--accent) 4%, transparent)
     );
-  opacity: .9;
+  opacity: .72;
 }
 .stat-card > *,
 .detail-card > * {
@@ -3933,11 +3942,13 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
 }
 .stat-card:hover,
 .detail-card:hover {
-  border-color: color-mix(in srgb, var(--text) 32%, var(--accent) 8%);
+  border-color: color-mix(in srgb, var(--text) 34%, var(--accent) 18%);
   box-shadow:
-    0 14px 40px #0007,
-    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 5%), transparent),
-    inset 0 0 0 1px color-mix(in srgb, #fff 5%, transparent);
+    0 16px 40px #0008,
+    inset 0 1px 0 color-mix(in srgb, #fff var(--glass-reflection, 7%), transparent),
+    inset 0 -1px 0 #0003,
+    inset 1px 0 0 #ffffff10,
+    inset -1px 0 0 #ffffff10;
 }
 .card-lab {
   border-color: color-mix(in srgb, var(--border) 82%, var(--accent) 18%);

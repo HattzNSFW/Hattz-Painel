@@ -4034,3 +4034,89 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
 }
 
 
+
+
+/* Card Lab · sete linguagens visuais selecionáveis por cartão ou globalmente. */
+.stat-card[data-card-glass-style],
+.detail-card[data-card-glass-style] {
+  transition: border-color .22s ease, box-shadow .22s ease, background .22s ease, transform .22s ease;
+}
+.stat-card[data-card-glass-style="metallic"],
+.detail-card[data-card-glass-style="metallic"] {
+  border-color: color-mix(in srgb, #d8dce6 var(--glass-border, 34%), var(--border));
+  background:
+    linear-gradient(145deg, #ffffff18, transparent 38%),
+    linear-gradient(115deg, #ffffff08, #737b8a12 48%, #ffffff05),
+    color-mix(in srgb, #687080 18%, var(--card) 82%);
+  box-shadow: 0 14px 34px #0008, inset 0 1px 0 #ffffff30, inset 0 -1px 0 #0005, inset 1px 0 #ffffff12;
+}
+.stat-card[data-card-glass-style="metallic"]::after,
+.detail-card[data-card-glass-style="metallic"]::after {
+  background: linear-gradient(115deg, #ffffff20, transparent 22%, #ffffff06 52%, transparent 76%, #0002);
+  opacity: .8;
+}
+.stat-card[data-card-glass-style="layered-depth"],
+.detail-card[data-card-glass-style="layered-depth"] {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--border));
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent 46%),
+    color-mix(in srgb, var(--card) 76%, transparent);
+  box-shadow: 0 18px 38px #0008, 0 5px 0 -2px color-mix(in srgb, var(--accent) 16%, var(--card)), 0 9px 0 -5px #ffffff16, inset 0 1px 0 #ffffff1c;
+  transform: translateY(-1px);
+}
+.stat-card[data-card-glass-style="layered-depth"]::after,
+.detail-card[data-card-glass-style="layered-depth"]::after {
+  inset: 1px;
+  border: 1px solid #ffffff0c;
+  background: linear-gradient(145deg, #ffffff12, transparent 40%, #0002);
+}
+.stat-card[data-card-glass-style="liquid-chrome"],
+.detail-card[data-card-glass-style="liquid-chrome"] {
+  border-color: color-mix(in srgb, #e7eaf3 38%, var(--accent) 22%);
+  background:
+    radial-gradient(ellipse at 12% 0%, #ffffff30, transparent 48%),
+    linear-gradient(130deg, #ffffff16, #858b9a0b 28%, #ffffff0c 55%, #0002),
+    color-mix(in srgb, var(--card) 82%, #8b91a0 18%);
+  box-shadow: 0 15px 36px #0009, inset 0 1px 0 #ffffff55, inset 0 -1px 0 #0005, inset 0 0 18px #ffffff08;
+}
+.stat-card[data-card-glass-style="liquid-chrome"]::after,
+.detail-card[data-card-glass-style="liquid-chrome"]::after {
+  background: linear-gradient(112deg, transparent 12%, #ffffff20 27%, transparent 42%, #ffffff0a 68%, transparent 82%);
+  opacity: .72;
+}
+.stat-card[data-card-glass-style="minimal-premium"],
+.detail-card[data-card-glass-style="minimal-premium"] {
+  border-color: color-mix(in srgb, var(--border) 78%, var(--text) 22%);
+  background: color-mix(in srgb, var(--card) 94%, #000 6%);
+  box-shadow: 0 8px 22px #0005, inset 0 1px 0 #ffffff0a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.stat-card[data-card-glass-style="minimal-premium"]::after,
+.detail-card[data-card-glass-style="minimal-premium"]::after { display: none; }
+.stat-card[data-card-glass-style="soft-neumorphism"],
+.detail-card[data-card-glass-style="soft-neumorphism"] {
+  border-color: color-mix(in srgb, var(--card) 72%, #ffffff 12%);
+  background: color-mix(in srgb, var(--card) 94%, #ffffff 6%);
+  box-shadow: 7px 7px 18px #0007, -5px -5px 15px #ffffff0a, inset 1px 1px 0 #ffffff0c;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.stat-card[data-card-glass-style="soft-neumorphism"]::after,
+.detail-card[data-card-glass-style="soft-neumorphism"]::after {
+  background: linear-gradient(145deg, #ffffff0b, transparent 48%, #0002);
+  opacity: .65;
+}
+.stat-card[data-card-glass-style="holographic"],
+.detail-card[data-card-glass-style="holographic"] {
+  border-color: color-mix(in srgb, #c5b8ff 42%, var(--accent) 25%);
+  background:
+    linear-gradient(118deg, #c9b5ff12, #78d9ed0c 28%, #f2a7d50c 56%, #f5dc9b0b 78%, transparent),
+    color-mix(in srgb, var(--card) 84%, #8b79bd 16%);
+  box-shadow: 0 14px 34px #0008, inset 0 1px 0 #ffffff2a, inset 0 0 22px #b9a4ff0b;
+}
+.stat-card[data-card-glass-style="holographic"]::after,
+.detail-card[data-card-glass-style="holographic"]::after {
+  background: linear-gradient(115deg, #d7c5ff18, transparent 25%, #8de4ef0c 45%, #f6b7df10 68%, transparent 88%);
+  opacity: .8;
+}

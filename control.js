@@ -1,83 +1,12 @@
 (() => {
   "use strict";
-  const API = String(window.HATTZ_SHARE_CONFIG?.apiBase || "https://hattz-share-api.kl-santdev.workers.dev").replace(/\/+$/, "");
+  const API = String(window.HATTZ_CORE?.apiBase?.() || window.HATTZ_SHARE_CONFIG?.apiBase || "https://hattz-share-api.kl-santdev.workers.dev").replace(/\/+$/, "");
   const $ = (id) => document.getElementById(id);
   const tokenKey = "hattz_control_session";
   let token = sessionStorage.getItem(tokenKey) || "";
   let page = 1;
   let totalPages = 1;
   let currentProfiles = [];
-  const DEFAULT_PROFILE = {
-    nome: "Seu Nome",
-    usuario: "seuusuario",
-    bio: "Sua identidade, do seu jeito.",
-    verificado: false,
-    verificadoCor: "#729cff",
-    cargo: "",
-    insignias: [],
-    rodape: "",
-    bannerHeadingVisible: true,
-    bannerTitulo: "",
-    bannerSubtitulo: "",
-    bannerHeight: 355,
-    avatarCrop: { x: 50, y: 50, zoom: 100 },
-    bannerCrop: { x: 50, y: 50, zoom: 100 },
-    cardBackgroundCrop: { x: 50, y: 50, zoom: 100 },
-    backgroundCrop: { x: 50, y: 50, zoom: 100 },
-    musicBarBackgroundCrop: { x: 50, y: 50, zoom: 100 },
-    dividerStyle: "ornamental",
-    dividerCustomColorEnabled: false,
-    dividerColor: "#a78bfa",
-    statsTitle: "Em evidência",
-    statsSubtitle: "",
-    detailsTitle: "Um pouco sobre mim",
-    detailsSubtitle: "",
-    animarMidia: true,
-    avatarPausado: false,
-    bannerPausado: false,
-    fundoPausado: false,
-    cardBackgroundPausado: false,
-    bannerOpacity: 100,
-    cardBackgroundOpacity: 100,
-    backgroundOpacity: 34,
-    musicBarBackgroundOpacity: 24,
-    musicPlayerWidth: 360,
-    musicPlayerHeight: 64,
-    musicPlayerX: null,
-    musicPlayerY: null,
-    moldura: "none",
-    raridadeMoldura: "none",
-    molduraCorPersonalizada: false,
-    molduraCor: "#a78bfa",
-    efeitosPerfil: true,
-    fonte: "DM Sans",
-    volume: 12,
-    gradientIntensity: 55,
-    cardRadius: 18,
-    tema: "dark",
-    cores: {
-      background: "#0b0a10",
-      gradient: "#292333",
-      card: "#14121b",
-      accent: "#a78bfa",
-      text: "#f4f0fa",
-      border: "#302a3a"
-    },
-    estatisticas: [
-      { id: "focus", label: "EM FOCO", value: "", icon: "✦" },
-      { id: "activity", label: "ATIVIDADE", value: "", icon: "◷" },
-      { id: "interest", label: "INTERESSE", value: "", icon: "◇" }
-    ],
-    detalhes: [
-      { id: "information", label: "INFORMAÇÃO", value: "", icon: "✧" },
-      { id: "preference", label: "PREFERÊNCIA", value: "", icon: "◇" },
-      { id: "reference", label: "REFERÊNCIA", value: "", icon: "✦" },
-      { id: "link", label: "LINK", value: "", icon: "↗" },
-      { id: "extra-one", label: "EXTRA", value: "", icon: "＋" },
-      { id: "extra-two", label: "EXTRA", value: "", icon: "＋" }
-    ]
-  };
-
   let toastTimer;
 
   function escapeHtml(value) {
@@ -145,38 +74,12 @@
     document.querySelectorAll(".view").forEach((view) => view.classList.toggle("active", view.id === `view-${name}`));
     document.querySelectorAll(".nav-item").forEach((button) => button.classList.toggle("active", button.dataset.view === name));
     if (name === "profiles") loadProfiles();
+    if (name === "ecosystem") loadEcosystem();
     if (name === "storage") loadStorage();
     if (name === "maintenance") loadMaintenance();
     if (name === "ip") loadIp();
     if (name === "audit") loadAudit();
   }
-  const brandAvatarKey = "hattz_control_brand_avatar";
-  function applyBrandAvatar(dataUrl) {
-    ["brandAvatarLogin", "brandAvatarHeader", "maintenancePreviewAvatar"].forEach((id) => {
-      const image = $(id);
-      if (!image) return;
-      const fallback = $(id === "brandAvatarLogin" ? "brandAvatarLoginFallback" : id === "brandAvatarHeader" ? "brandAvatarHeaderFallback" : "maintenancePreviewAvatarFallback");
-      if (dataUrl) { image.src = dataUrl; image.hidden = false; if (fallback) fallback.hidden = true; }
-      else { image.removeAttribute("src"); image.hidden = true; if (fallback) fallback.hidden = false; }
-    });
-  }
-  function initBrandAvatar() {
-    applyBrandAvatar(localStorage.getItem(brandAvatarKey) || "");
-    document.querySelectorAll("[data-brand-avatar-trigger]").forEach((button) => button.addEventListener("click", () => $("brandAvatarFile").click()));
-    $("brandAvatarFile").addEventListener("change", () => {
-      const file = $("brandAvatarFile").files?.[0];
-      if (!file) return;
-      if (!file.type.startsWith("image/")) { notify("Escolha um arquivo de imagem."); return; }
-      if (file.size > 5 * 1024 * 1024) { notify("A foto deve ter no máximo 5 MB."); return; }
-      const reader = new FileReader();
-      reader.onload = () => {
-        try { localStorage.setItem(brandAvatarKey, String(reader.result)); applyBrandAvatar(String(reader.result)); notify("Foto de perfil atualizada neste navegador."); }
-        catch { notify("Não foi possível salvar a foto. Tente uma imagem menor."); }
-      };
-      reader.readAsDataURL(file);
-    });
-  }
-
   async function loadOverview() {
     try {
       const [storage, maintenance] = await Promise.all([api("/api/admin/storage"), api("/api/admin/maintenance")]);
@@ -205,28 +108,7 @@
       $("profilesTable").innerHTML = currentProfiles.length ? currentProfiles.map((profile) => {
         const official = ["MT7QTEVMZY", "YGZNK6TMG8"].includes(profile.code);
         const status = profile.status || "active";
-        return `<tr>
-          <td>
-            <input type="checkbox" class="profile-check"
-              data-code="${escapeHtml(profile.code)}"
-              ${official ? "disabled" : ""}>
-          </td>
-          <td>
-            <span class="code-cell">${escapeHtml(profile.code)}</span>
-            ${official
-              ? '<span class="sub-cell">Perfil oficial · protegido</span>'
-              : `<button type="button" class="reset-profile-btn" data-reset-code="${escapeHtml(profile.code)}">Resetar</button>`
-            }
-          </td>
-          <td>${formatBytes(profile.storage_bytes)}</td>
-          <td>${Number(profile.media_count || 0)}</td>
-          <td>
-            <span class="state ${escapeHtml(status)}">
-              ${status === "active" ? "Ativo" : status === "suspended" ? "Suspenso" : "Excluindo"}
-            </span>
-          </td>
-          <td>${formatDate(profile.updated_at)}</td>
-        </tr>`;
+        return `<tr><td><input type="checkbox" class="profile-check" data-code="${escapeHtml(profile.code)}" ${official ? "disabled" : ""}></td><td><span class="code-cell">${escapeHtml(profile.code)}</span>${official ? '<span class="sub-cell">Perfil oficial · protegido</span>' : ""}</td><td>${formatBytes(profile.storage_bytes)}</td><td>${Number(profile.media_count || 0)}</td><td><span class="state ${escapeHtml(status)}">${status === "active" ? "Ativo" : status === "suspended" ? "Suspenso" : "Excluindo"}</span></td><td>${formatDate(profile.updated_at)}</td></tr>`;
       }).join("") : '<tr><td colspan="6" class="empty">Nenhum perfil encontrado.</td></tr>';
       $("profilesPageLabel").textContent = `Página ${page} de ${totalPages} · ${result.total} perfis`;
       $("previousPage").disabled = page <= 1;
@@ -266,64 +148,6 @@
     } catch (error) { notify(error.message); await loadProfiles(); }
     finally { updateSelection(); }
   }
-  async function resetProfile(code) {
-    const officialProfiles = ["MT7QTEVMZY", "YGZNK6TMG8"];
-
-    if (officialProfiles.includes(code)) {
-      notify("Este perfil oficial está protegido.");
-      return;
-    }
-
-    const accepted = window.confirm(
-      `ATENÇÃO: você está prestes a resetar o perfil ${code}.\n\n` +
-      "Isso irá:\n" +
-      "• Restaurar todas as configurações ao padrão inicial.\n" +
-      "• Apagar todas as mídias do perfil no Supabase.\n" +
-      "• Remover os registros dessas mídias.\n\n" +
-      "O código, a chave privada, a data de criação e o status serão preservados.\n\n" +
-      "Esta ação é irreversível. Deseja continuar?"
-    );
-
-    if (!accepted) return;
-
-    const confirmation = window.prompt('Para confirmar, digite RESETAR:');
-    if (confirmation !== "RESETAR") {
-      notify("Reset cancelado.");
-      return;
-    }
-
-    const button = document.querySelector(`[data-reset-code="${CSS.escape(code)}"]`);
-    if (button) {
-      button.disabled = true;
-      button.textContent = "Resetando…";
-    }
-
-    try {
-      const result = await api(
-        `/api/admin/profiles/${encodeURIComponent(code)}/reset`,
-        {
-          method: "POST",
-          body: JSON.stringify({
-            confirmation: "RESETAR",
-            profile: DEFAULT_PROFILE
-          })
-        }
-      );
-
-      notify(
-        `Perfil restaurado. ${result.deletedMediaCount} mídia(s) removida(s). ${formatBytes(result.releasedBytes)} liberados.`
-      );
-
-      await Promise.all([loadProfiles(), loadStorage(), loadOverview()]);
-    } catch (error) {
-      notify(`Falha ao resetar: ${error.message}`);
-      if (button) {
-        button.disabled = false;
-        button.textContent = "Resetar";
-      }
-    }
-  }
-
   async function loadStorage() {
     try {
       const data = await api("/api/admin/storage");
@@ -414,6 +238,39 @@
     } catch (error) { notify(error.message); }
     finally { button.disabled = false; button.textContent = "Enviar fundo"; }
   }
+  async function loadEcosystem() {
+    try {
+      const data = await api('/api/catalog', {}, false);
+      const frames = data.frames || [], badges = data.badges || [];
+      $('grantBadgeId').innerHTML = badges.map(x => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)} · ${escapeHtml(x.rarity)}</option>`).join('');
+      $('grantFrameId').innerHTML = frames.map(x => `<option value="${escapeHtml(x.id)}">${escapeHtml(x.name)} · ${escapeHtml(x.rarity)}</option>`).join('');
+      $('ecosystemCatalog').innerHTML = [...badges.map(x => ({...x,kind:'Insígnia'})),...frames.map(x=>({...x,kind:'Moldura'}))].map(x=>`<div class="audit-item"><span class="audit-time">${escapeHtml(x.kind)}</span><div><div class="audit-action">${escapeHtml(x.name)}</div><div class="audit-detail">${escapeHtml(x.description || '')}</div></div><span class="audit-target">${escapeHtml(x.rarity)}</span></div>`).join('') || '<p class="empty">Catálogo vazio.</p>';
+    } catch (error) { notify(error.message); }
+  }
+  async function saveCatalogItem() {
+    const kind = $('catalogKind').value, id = $('catalogId').value.trim().toLowerCase();
+    if (!/^[a-z0-9][a-z0-9_-]{1,47}$/.test(id)) { notify('Use um ID de 2 a 48 caracteres: letras, números, hífen ou sublinhado.'); return; }
+    const body = { name:$('catalogName').value, description:$('catalogDescription').value, rarity:$('catalogRarity').value };
+    if (kind === 'badges') { body.category=$('catalogCategory').value; body.icon=$('catalogIcon').value; }
+    try { await api(`/api/admin/catalog/${kind}/${encodeURIComponent(id)}`, {method:'PUT',body:JSON.stringify(body)}); notify('Item salvo no catálogo.'); await loadEcosystem(); }
+    catch(error) { notify(error.message); }
+  }
+  function entitlementCode() { const raw=$('entitlementCode').value.trim().toUpperCase(); return raw.replace(/^HTZ-?/,'').replace(/-/g,''); }
+  async function saveVip() {
+    const code=entitlementCode(); if(!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/.test(code)){notify('Informe um código de perfil válido.');return;}
+    const expiry=$('vipExpiry').value; const body={vip:$('vipEnabled').value==='true',vipExpiresAt:expiry?new Date(expiry).getTime():null,benefits:{profileStorageLimitBytes:524288000}};
+    try { const result=await api(`/api/admin/profiles/${code}/entitlements`,{method:'PUT',body:JSON.stringify(body)}); notify(result.vip?'VIP concedido.':'VIP revogado.'); }
+    catch(error){notify(error.message);}
+  }
+  async function mutateProfileCollectible(type, action) {
+    const code=entitlementCode(); if(!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{10}$/.test(code)){notify('Informe um código de perfil válido.');return;}
+    const isBadge=type==='badges', id=$(isBadge?'grantBadgeId':'grantFrameId').value;
+    if(!id){notify('Cadastre ou selecione um item primeiro.');return;}
+    const body=isBadge?{badgeId:id,action}:{frameId:id,action};
+    try{await api(`/api/admin/profiles/${code}/${type}`,{method:'POST',body:JSON.stringify(body)});notify(`${isBadge?'Insígnia':'Moldura'} ${action==='grant'?'concedida':'revogada'}.`);}
+    catch(error){notify(error.message);}
+  }
+
   async function loadIp() {
     const profile = encodeURIComponent($("ipProfileFilter").value.trim());
     const reloadButton = $("reloadIp");
@@ -452,7 +309,6 @@
     } catch (error) { $("auditList").innerHTML = `<p class="empty">${escapeHtml(error.message)}</p>`; }
   }
 
-  initBrandAvatar();
   $("loginForm").addEventListener("submit", login);
   $("logoutButton").addEventListener("click", () => logout(true));
   document.querySelectorAll(".nav-item").forEach((button) => button.addEventListener("click", () => setView(button.dataset.view)));
@@ -469,6 +325,14 @@
   $("previousPage").addEventListener("click", () => { page = Math.max(1, page - 1); loadProfiles(); });
   $("nextPage").addEventListener("click", () => { page = Math.min(totalPages, page + 1); loadProfiles(); });
   $("reloadStorage").addEventListener("click", loadStorage);
+  $("reloadEcosystem").addEventListener("click", loadEcosystem);
+  $("catalogKind").addEventListener("change", () => { $("catalogBadgeFields").hidden = $("catalogKind").value !== "badges"; });
+  $("saveCatalogItem").addEventListener("click", saveCatalogItem);
+  $("saveVip").addEventListener("click", saveVip);
+  $("grantBadge").addEventListener("click", () => mutateProfileCollectible("badges", "grant"));
+  $("revokeBadge").addEventListener("click", () => mutateProfileCollectible("badges", "revoke"));
+  $("grantFrame").addEventListener("click", () => mutateProfileCollectible("frames", "grant"));
+  $("revokeFrame").addEventListener("click", () => mutateProfileCollectible("frames", "revoke"));
   $("saveMaintenance").addEventListener("click", saveMaintenance);
   $("uploadMaintenanceBackground").addEventListener("click", uploadMaintenanceBackground);
   ["maintenanceTitle", "maintenanceMessage"].forEach((id) => $(id).addEventListener("input", updateMaintenancePreviewText));
@@ -478,11 +342,6 @@
   $("searchIp").addEventListener("click", loadIp);
   $("clearIpEvents").addEventListener("click", clearIpEvents);
   $("reloadAudit").addEventListener("click", loadAudit);
-  $("profilesTable").addEventListener("click", (event) => {
-    const button = event.target.closest("[data-reset-code]");
-    if (!button) return;
-    resetProfile(button.dataset.resetCode);
-  });
 
   if (token) showApp(true); else showApp(false);
 })();

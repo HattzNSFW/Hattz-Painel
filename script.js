@@ -13,21 +13,6 @@ const ACTIVE_PROFILE_ID = PROFILE_IDS.includes(requestedProfileId) ? requestedPr
 const OTHER_PROFILE_ID = ACTIVE_PROFILE_ID === "perfil-1" ? "perfil-2" : "perfil-1";
 const SHARED_PROFILE_CODE = new URLSearchParams(window.location.search).get("share") || "";
 const IS_PUBLIC_VIEW = Boolean(SHARED_PROFILE_CODE);
-const OFFICIAL_PRIVATE_PROFILE_CODES = new Set(["MT7QTEVMZY", "YGZNK6TMG8"]);
-const PRIVATE_ROLE_VALUES = ["OWNER", "DEV", "FOUNDER", "CREATOR"];
-
-function isOfficialPrivateProfileCode(value) {
-  return OFFICIAL_PRIVATE_PROFILE_CODES.has(normalizePublicCode(value));
-}
-
-function hasPrivateRoleAccess() {
-  if (IS_PUBLIC_VIEW) return isOfficialPrivateProfileCode(SHARED_PROFILE_CODE);
-  return isOfficialPrivateProfileCode(getSavedShareCode()) && Boolean(getSavedOwnerToken());
-}
-
-function isReservedRole(value) {
-  return /^(OWNER|DEV|FOUNDER|CREATOR|ADMIN|ADMINISTRATOR|STAFF|MODERATOR|DEVELOPER|DONO)$/i.test(String(value || "").trim());
-}
 const SHARE_MEDIA_KEYS = ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"];
 const SHARE_OWNER_TOKEN_KEY = `hattz-share-owner:${ACTIVE_PROFILE_ID}`;
 const SHARE_PUBLIC_CODE_KEY = `hattz-share-code:${ACTIVE_PROFILE_ID}`;
@@ -36,7 +21,7 @@ let sharedProfileLoaded = false;
 let sharedProfileLoadError = "";
 
 function getShareApiBase() {
-  const configured = window.HATTZ_SHARE_CONFIG?.apiBase || "";
+  const configured = window.HATTZ_CORE?.apiBase?.() || window.HATTZ_SHARE_CONFIG?.apiBase || "";
   return String(configured).trim().replace(/\/+$/, "");
 }
 
@@ -112,6 +97,7 @@ const DEFAULT_PROFILE = {
   volume: 12,
   gradientIntensity: 55,
   cardRadius: 18,
+  studio: { glass: { opacity: 72, blur: 18, reflection: 42, glow: 28, border: 45, depth: 42 }, cards: {}, avatar: { size: 150, thickness: 2, offsetX: 0, offsetY: 0, lighting: 65 } },
 
   tema: "dark",
 
@@ -344,10 +330,31 @@ function normalizeProfileData(parsed) {
     };
   }
 
+  const studio = parsed.studio && typeof parsed.studio === "object" ? parsed.studio : {};
+  const glass = studio.glass && typeof studio.glass === "object" ? studio.glass : {};
+  const avatar = studio.avatar && typeof studio.avatar === "object" ? studio.avatar : {};
+  normalized.studio = {
+    glass: {
+      opacity: Math.min(100, Math.max(0, Number(glass.opacity ?? 72))),
+      blur: Math.min(40, Math.max(0, Number(glass.blur ?? 18))),
+      reflection: Math.min(100, Math.max(0, Number(glass.reflection ?? 42))),
+      glow: Math.min(100, Math.max(0, Number(glass.glow ?? 28))),
+      border: Math.min(100, Math.max(0, Number(glass.border ?? 45))),
+      depth: Math.min(100, Math.max(0, Number(glass.depth ?? 42)))
+    },
+    cards: studio.cards && typeof studio.cards === "object" ? studio.cards : {},
+    avatar: {
+      size: Math.min(220, Math.max(110, Number(avatar.size ?? 150))),
+      thickness: Math.min(8, Math.max(1, Number(avatar.thickness ?? 2))),
+      offsetX: Math.min(30, Math.max(-30, Number(avatar.offsetX ?? 0))),
+      offsetY: Math.min(30, Math.max(-30, Number(avatar.offsetY ?? 0))),
+      lighting: Math.min(100, Math.max(0, Number(avatar.lighting ?? 65)))
+    }
+  };
   normalized.dividerStyle = ["none", "minimal", "double", "dotted", "ornamental", "celestial", "gothic", "royal"].includes(parsed.dividerStyle) ? parsed.dividerStyle : "ornamental";
   normalized.dividerCustomColorEnabled = Boolean(parsed.dividerCustomColorEnabled);
   normalized.dividerColor = /^#[0-9a-f]{6}$/i.test(parsed.dividerColor || "") ? parsed.dividerColor : "#a78bfa";
-  if (!["none", "celestial", "gothic", "royal", "floral", "ornate", "dark", "halo", "vintage"].includes(normalized.moldura)) normalized.moldura = "celestial";
+  if (!["none", "celestial", "gothic", "royal", "floral", "ornate", "dark", "halo", "vintage", "amethyst"].includes(normalized.moldura)) normalized.moldura = "celestial";
   normalized.fundoPausado = Boolean(parsed.fundoPausado);
   normalized.cardBackgroundPausado = Boolean(parsed.cardBackgroundPausado);
   if (String(normalized.bannerTitulo || "").trim().toUpperCase() === "PERSONAL SPACE") normalized.bannerTitulo = "";
@@ -371,9 +378,9 @@ function normalizeProfileData(parsed) {
   normalized.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
   normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
 
-  const roleValue = String(normalized.cargo || "").trim().toUpperCase();
-  if (isReservedRole(roleValue) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(roleValue))) normalized.cargo = "";
-    normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
+  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
+  if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
+  normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
 
   if (typeof parsed.animarMidia !== "boolean") {
     normalized.animarMidia = typeof parsed.animarAvatar === "boolean" ? parsed.animarAvatar : true;
@@ -616,6 +623,17 @@ function svgStart(content) {
 const FRAMES = {
 
   none: "",
+  amethyst: svgStart(`
+    <circle class="ring-main" cx="95" cy="95" r="72"/>
+    <circle class="ring-secondary" cx="95" cy="95" r="82"/>
+    <g class="amethyst-gems">
+      <path d="M95 5 104 20 95 35 86 20Z"/><path d="M95 155 104 170 95 185 86 170Z"/>
+      <path d="M5 95 20 86 35 95 20 104Z"/><path d="M155 95 170 86 185 95 170 104Z"/>
+      <path d="M31 31 43 28 47 43 35 47Z"/><path d="M159 31 147 28 143 43 155 47Z"/>
+      <path d="M31 159 43 162 47 147 35 143Z"/><path d="M159 159 147 162 143 147 155 143Z"/>
+    </g>
+    <circle class="ornament" cx="95" cy="20" r="4"/><circle class="ornament" cx="95" cy="170" r="4"/>
+  `),
 
   celestial: svgStart(`
     <circle class="ring-main" cx="95" cy="95" r="72"/>
@@ -919,7 +937,7 @@ function renderFrame() {
 
   const artwork = name;
 
-  const rarity = ["none", "common", "rare", "epic", "legendary"].includes(profile.raridadeMoldura)
+  const rarity = ["none", "common", "rare", "epic", "legendary", "elite"].includes(profile.raridadeMoldura)
     ? profile.raridadeMoldura
     : "none";
   frame.className = `avatar-frame rarity-${rarity}`;
@@ -973,10 +991,9 @@ function renderIdentity() {
 
   $("profileBio").textContent = profile.bio || "";
   const roleChip = $("profileRole");
-  const roleValue = String(profile.cargo || "").trim().toUpperCase();
-  const blockedRole = isReservedRole(roleValue) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(roleValue));
+  const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i.test(String(profile.cargo || "").trim());
   const safeRole = blockedRole ? "" : profile.cargo;
-    roleChip.textContent = safeRole || "";
+  roleChip.textContent = safeRole || "";
   roleChip.hidden = !safeRole;
   roleChip.classList.toggle("owner-role", /^(owner|dono)$/i.test(safeRole));
   roleChip.title = safeRole || "Identificação do perfil";
@@ -1035,11 +1052,69 @@ function renderDetails() {
   }).join("");
 }
 
+function applyStudioSettings() {
+  const config = profile.studio || DEFAULT_PROFILE.studio;
+  const glass = config.glass || DEFAULT_PROFILE.studio.glass;
+  const root = document.documentElement;
+  root.style.setProperty("--studio-blur", `${Number(glass.blur || 0)}px`);
+  root.style.setProperty("--studio-opacity", `${Number(glass.opacity || 0) / 100}`);
+  root.style.setProperty("--studio-reflection", `${Number(glass.reflection || 0) / 100}`);
+  root.style.setProperty("--studio-glow", `${Number(glass.glow || 0) / 100}`);
+  root.style.setProperty("--studio-border", `${Number(glass.border || 0) / 100}`);
+  root.style.setProperty("--studio-depth", `${Number(glass.depth || 0) / 100}`);
+  const avatar = config.avatar || DEFAULT_PROFILE.studio.avatar;
+  const frame = $("avatarFrame");
+  if (frame) {
+    frame.style.width = `${avatar.size || 150}px`;
+    frame.style.height = `${avatar.size || 150}px`;
+    frame.style.setProperty("--studio-frame-thickness", `${avatar.thickness || 2}px`);
+    frame.style.setProperty("--studio-frame-lighting", `${Number(avatar.lighting || 0) / 100}`);
+    frame.style.translate = `${Number(avatar.offsetX || 0)}px ${Number(avatar.offsetY || 0)}px`;
+  }
+  const cards = [...document.querySelectorAll(".stat-card, .detail-card")];
+  cards.forEach((card, index) => {
+    const key = card.classList.contains("stat-card") ? `stat_${profile.estatisticas[index]?.id || index}` : `detail_${profile.detalhes[index - profile.estatisticas.length]?.id || index}`;
+    const override = config.cards?.[key] || {};
+    const opacity = Math.min(100, Math.max(0, Number(override.opacity ?? glass.opacity ?? 72)));
+    const blur = Math.min(40, Math.max(0, Number(override.blur ?? glass.blur ?? 18)));
+    card.style.setProperty("--card-glass-opacity", String(opacity / 100));
+    card.style.setProperty("--card-glass-blur", `${blur}px`);
+    card.style.setProperty("--card-glass-glow", String(Number(override.glow ?? glass.glow ?? 28) / 100));
+  });
+}
+
+async function loadPublicEntitlements() {
+  if (!IS_PUBLIC_VIEW || !SHARED_PROFILE_CODE) return;
+  const api = getShareApiBase();
+  if (!api) return;
+  try {
+    const response = await fetch(`${api}/api/profiles/${encodeURIComponent(normalizePublicCode(SHARED_PROFILE_CODE))}/entitlements`, { cache: "no-store" });
+    if (!response.ok) return;
+    const data = await response.json();
+    const badges = $("badges");
+    if (data.vip) {
+      const vip = document.createElement("span");
+      vip.className = "badge hattz-vip-badge";
+      vip.textContent = "✦ VIP";
+      vip.title = data.vipExpiresAt ? `VIP até ${new Date(data.vipExpiresAt).toLocaleDateString("pt-BR")}` : "Hättz VIP";
+      badges.append(vip);
+    }
+    for (const item of (data.badges || [])) {
+      const chip = document.createElement("span");
+      chip.className = `badge hattz-collectible rarity-${["basic","premium","elite"].includes(item.rarity) ? item.rarity : "basic"}`;
+      chip.textContent = `${item.icon || "✦"} ${item.name}`;
+      chip.title = item.description || item.name;
+      badges.append(chip);
+    }
+  } catch (error) { console.warn("Não foi possível carregar os benefícios públicos do perfil."); }
+}
+
 function renderProfile() {
   renderIdentity();
   renderStats();
   renderDetails();
   renderFrame();
+  applyStudioSettings();
 
   applyColors(profile.cores);
   applyCropSettings();
@@ -2481,22 +2556,7 @@ function toggleBadgePreset(event) {
   renderBadgeLibrary();
 }
 
-function updatePrivateRoleOptions() {
-  const select = $("editRole");
-  if (!select) return;
-  select.querySelectorAll("option[data-private-role]").forEach((option) => option.remove());
-  if (!hasPrivateRoleAccess()) return;
-  PRIVATE_ROLE_VALUES.forEach((role) => {
-    const option = document.createElement("option");
-    option.value = role;
-    option.textContent = role;
-    option.dataset.privateRole = "true";
-    select.appendChild(option);
-  });
-}
-
 function fillEditor() {
-  updatePrivateRoleOptions();
   $("editName").value = profile.nome;
   $("editUsername").value = profile.usuario;
   $("editBio").value = profile.bio;
@@ -2574,8 +2634,7 @@ function readIdentityEditor() {
   profile.nome = $("editName").value.trim();
   profile.usuario = normalizeUsername($("editUsername").value);
   profile.bio = $("editBio").value.trim();
-  const selectedRole = $("editRole").value;
-  profile.cargo = isReservedRole(selectedRole) && !(hasPrivateRoleAccess() && PRIVATE_ROLE_VALUES.includes(selectedRole)) ? "" : selectedRole;
+  profile.cargo = $("editRole").value;
   profile.verificado = $("editVerified").checked;
   profile.verificadoCor = $("verifiedColor").value;
 
@@ -3123,18 +3182,7 @@ async function importProfileBackup(event) {
       detalhes: Array.isArray(imported.detalhes) ? imported.detalhes : structuredClone(DEFAULT_PROFILE.detalhes)
     };
 
-    const importedShare = backup.share || {};
-    const importedOwnerToken = String(importedShare.ownerToken || "").trim();
-    const importedShareCode = String(importedShare.code || "").trim();
-    const canImportPrivateRole = importedShare.profileId === ACTIVE_PROFILE_ID
-      && isOfficialPrivateProfileCode(importedShareCode)
-      && /^[A-Za-z0-9_-]{40,100}$/.test(importedOwnerToken);
-    if (canImportPrivateRole) {
-      localStorage.setItem(SHARE_PUBLIC_CODE_KEY, importedShareCode);
-      localStorage.setItem(SHARE_OWNER_TOKEN_KEY, importedOwnerToken);
-    }
-    const importedRole = String(profile.cargo || "").trim().toUpperCase();
-    if (isReservedRole(importedRole) && !(canImportPrivateRole && PRIVATE_ROLE_VALUES.includes(importedRole))) profile.cargo = "";
+    if (/\b(owner|dono|admin|administrator|dev|developer|staff|moderator)\b/i.test(String(profile.cargo || ""))) profile.cargo = "";
     profile.insignias = [...new Set(profile.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
 
     for (const key of ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"]) {
@@ -3143,6 +3191,16 @@ async function importProfileBackup(event) {
         await saveMedia(key, dataURLToBlob(value));
       } else {
         await deleteMedia(key);
+      }
+    }
+
+    // Share credentials belong to one profile slot; never move them into the other slot.
+    if (backup.share && backup.share.profileId === ACTIVE_PROFILE_ID) {
+      const code = String(backup.share.code || "").trim();
+      const ownerToken = String(backup.share.ownerToken || "").trim();
+      if (/^HTZ-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}-[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5}$/.test(code) && /^[A-Za-z0-9_-]{40,100}$/.test(ownerToken)) {
+        localStorage.setItem(SHARE_PUBLIC_CODE_KEY, code);
+        localStorage.setItem(SHARE_OWNER_TOKEN_KEY, ownerToken);
       }
     }
 
@@ -3430,6 +3488,7 @@ function setupEvents() {
       setCaptureMode(!document.body.classList.contains("capture-mode"));
     }
   });
+  $("openStudio").addEventListener("click", () => { if (!IS_PUBLIC_VIEW) window.location.href = `studio.html?profile=${encodeURIComponent(ACTIVE_PROFILE_ID)}`; });
   $("openEditor").addEventListener("click", openEditor);
   $("closeEditor").addEventListener("click", closeEditor);
 
@@ -3718,6 +3777,7 @@ async function init() {
     ? `${profile.nome || "Perfil compartilhado"} — Hättz`
     : (ACTIVE_PROFILE_ID === "perfil-1" ? "Hättz — Perfil 1" : "Hättz — Perfil 2");
   renderProfile();
+  if (IS_PUBLIC_VIEW) await loadPublicEntitlements();
   if (IS_PUBLIC_VIEW && sharedProfileLoadError) {
     const name = $("profileName");
     const bio = $("profileBio");
@@ -3727,6 +3787,19 @@ async function init() {
   if (!IS_PUBLIC_VIEW) fillEditor();
   setMediaAnimation(profile.animarMidia);
 }
+
+window.addEventListener("message", (event) => {
+  if (event.origin !== window.location.origin || event.data?.type !== "HATTZ_STUDIO_PREVIEW_REFRESH" || IS_PUBLIC_VIEW) return;
+  try {
+    loadProfile();
+    applyMediaOpacitySettings();
+    applyMusicPlayerSize();
+    applyMusicPlayerPosition();
+    renderProfile();
+    fillEditor();
+    setMediaAnimation(profile.animarMidia);
+  } catch (error) { console.warn("Falha ao atualizar a prévia do Studio."); }
+});
 
 document.addEventListener("visibilitychange", applyMediaPlayback);
 window.addEventListener("scroll", queueVisualVideoSync, { passive: true });

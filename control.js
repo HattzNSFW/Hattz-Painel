@@ -277,14 +277,16 @@
     if (reloadButton) { reloadButton.disabled = true; reloadButton.textContent = "Atualizando…"; }
     try {
       const data = await api(`/api/admin/ip-events?limit=100${profile ? `&profile=${profile}` : ""}`);
-      $("vpnProviderStatus").textContent = `Exibindo ${data.events.length} IPs únicos por perfil. Eventos repetidos do mesmo IP foram agrupados; localização aproximada via Cloudflare.`;
+      const providerState = data.reputationProviderEnabled ? "IPQualityScore ativo apenas para eventos de segurança." : "IPQualityScore desativado; VPN/proxy/Tor ficam sem classificação externa.";
+      $("vpnProviderStatus").textContent = `Exibindo ${data.events.length} IPs únicos por perfil. Localização aproximada via Cloudflare · retenção de ${data.retentionDays || 90} dias. ${providerState}`;
       $("ipTable").innerHTML = data.events.length ? data.events.map((event) => {
         const location = [event.city, event.region, event.country].filter(Boolean).join(", ") || "—";
         const isp = [event.as_org, event.asn ? `ASN ${event.asn}` : ""].filter(Boolean).join(" · ") || "—";
         const risk = [event.vpn ? "VPN" : "", event.proxy ? "Proxy" : "", event.tor ? "Tor" : ""].filter(Boolean).join(" · ") || "Não detectado / não verificado";
-        return `<tr><td><span class="code-cell">${escapeHtml(event.ip || "Criptografado")}</span></td><td>${escapeHtml(event.profile_code || "—")}</td><td>${escapeHtml(location)}</td><td>${escapeHtml(isp)}</td><td>${escapeHtml(risk)}${event.risk_score != null ? `<span class="sub-cell">Risk score ${event.risk_score}</span>` : ""}</td><td>${formatDate(event.created_at)}</td></tr>`;
-      }).join("") : '<tr><td colspan="6" class="empty">Nenhum evento encontrado.</td></tr>';
-    } catch (error) { $("ipTable").innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(error.message)}</td></tr>`; }
+        const eventType = String(event.event_type || "evento").replace(/[._-]+/g, " ");
+        return `<tr><td><span class="code-cell">${escapeHtml(event.ip || "Criptografado")}</span></td><td>${escapeHtml(event.profile_code || "—")}</td><td>${escapeHtml(location)}</td><td>${escapeHtml(isp)}</td><td>${escapeHtml(risk)}${event.risk_score != null ? `<span class="sub-cell">Risk score ${event.risk_score}</span>` : ""}</td><td>${escapeHtml(eventType)}</td><td>${formatDate(event.created_at)}</td></tr>`;
+      }).join("") : '<tr><td colspan="7" class="empty">Nenhum evento encontrado.</td></tr>';
+    } catch (error) { $("ipTable").innerHTML = `<tr><td colspan="7" class="empty">${escapeHtml(error.message)}</td></tr>`; }
     finally { if (reloadButton) { reloadButton.disabled = false; reloadButton.textContent = "↻ Atualizar"; } }
   }
   async function clearIpEvents() {

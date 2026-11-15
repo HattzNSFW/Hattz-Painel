@@ -14,6 +14,7 @@ const OTHER_PROFILE_ID = ACTIVE_PROFILE_ID === "perfil-1" ? "perfil-2" : "perfil
 const SHARED_PROFILE_CODE = new URLSearchParams(window.location.search).get("share") || "";
 const IS_PUBLIC_VIEW = Boolean(SHARED_PROFILE_CODE);
 const SHARE_MEDIA_KEYS = ["avatar", "banner", "background", "cardBackground", "music", "musicCover", "musicBarBackground"];
+const OFFICIAL_PROFILE_CODES = new Set(["MT7QTEVMZY", "YGZNK6TMG8"]);
 const SHARE_OWNER_TOKEN_KEY = `hattz-share-owner:${ACTIVE_PROFILE_ID}`;
 const SHARE_PUBLIC_CODE_KEY = `hattz-share-code:${ACTIVE_PROFILE_ID}`;
 let sharedMediaManifest = [];
@@ -27,6 +28,13 @@ function getShareApiBase() {
 
 function normalizePublicCode(value) {
   return String(value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^HTZ/, "");
+}
+
+function isOfficialProfileContext() {
+  const code = IS_PUBLIC_VIEW
+    ? normalizePublicCode(SHARED_PROFILE_CODE)
+    : normalizePublicCode(localStorage.getItem(SHARE_PUBLIC_CODE_KEY) || "");
+  return OFFICIAL_PROFILE_CODES.has(code);
 }
 
 function buildPublicProfileUrl(code) {
@@ -378,8 +386,8 @@ function normalizeProfileData(parsed) {
   normalized.musicPlayerX = parsed.musicPlayerX !== null && parsed.musicPlayerX !== undefined && Number.isFinite(Number(parsed.musicPlayerX)) ? Number(parsed.musicPlayerX) : null;
   normalized.musicPlayerY = parsed.musicPlayerY !== null && parsed.musicPlayerY !== undefined && Number.isFinite(Number(parsed.musicPlayerY)) ? Number(parsed.musicPlayerY) : null;
 
-  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i;
-  if (reservedRoles.test(String(normalized.cargo || "").trim())) normalized.cargo = "";
+  const reservedRoles = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono|founder|official|oficial)\b/i;
+  if (reservedRoles.test(String(normalized.cargo || "").trim()) && !isOfficialProfileContext()) normalized.cargo = "";
   normalized.insignias = [...new Set(normalized.insignias.map(normalizeBadge).filter((badge) => badge && !isBlockedBadge(badge)))];
 
   if (typeof parsed.animarMidia !== "boolean") {
@@ -994,11 +1002,12 @@ function renderIdentity() {
 
   $("profileBio").textContent = profile.bio || "";
   const roleChip = $("profileRole");
-  const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono)\b/i.test(String(profile.cargo || "").trim());
-  const safeRole = blockedRole ? "" : profile.cargo;
+  const officialProfile = isOfficialProfileContext();
+  const blockedRole = /\b(admin|administrator|dev|developer|staff|moderator|owner|dono|founder|official|oficial)\b/i.test(String(profile.cargo || "").trim());
+  const safeRole = officialProfile ? (String(profile.cargo || "").trim() || "Owner") : (blockedRole ? "" : profile.cargo);
   roleChip.textContent = safeRole || "";
   roleChip.hidden = !safeRole;
-  roleChip.classList.toggle("owner-role", /^(owner|dono)$/i.test(safeRole));
+  roleChip.classList.toggle("owner-role", officialProfile || /^(owner|dono)$/i.test(safeRole));
   roleChip.title = safeRole || "Identificação do perfil";
   roleChip.setAttribute("aria-label", roleChip.title);
   const verifiedBadge = $("verifiedBadge");
@@ -1098,6 +1107,13 @@ async function loadPublicEntitlements() {
     const verifiedBadge = $("verifiedBadge");
     verifiedBadge.hidden = data.vip !== true;
     const badges = $("badges");
+    if (data.official === true && !badges.querySelector(".hattz-official-badge")) {
+      const official = document.createElement("span");
+      official.className = "badge hattz-official-badge";
+      official.textContent = "✦ Hättz Official";
+      official.title = "Perfil oficial do Hättz";
+      badges.append(official);
+    }
     if (data.vip) {
       const vip = document.createElement("span");
       vip.className = "badge hattz-vip-badge";
@@ -2513,7 +2529,10 @@ function deleteSavedTheme() {
 const BADGE_PRESETS = ["Verified", "Gamer", "Artist", "Designer", "VIP", "Creator", "Photographer", "Music", "Technology", "Writer", "Editor", "Collector"];
 const RESERVED_LABELS = /\b(admin|administrator|dev|developer|staff|moderator)\b/i;
 const normalizeBadge = (value) => /^dono$/i.test(String(value).trim()) ? "Owner" : String(value).trim();
-const isBlockedBadge = (value) => RESERVED_LABELS.test(String(value)) || /\b(owner|dono)\b/i.test(String(value));
+const isBlockedBadge = (value) => {
+  const reserved = RESERVED_LABELS.test(String(value)) || /\b(owner|dono|founder|official|oficial)\b/i.test(String(value));
+  return reserved && !isOfficialProfileContext();
+};
 
 function renderBadgeLibrary() {
   const container = $("badgeLibrary");

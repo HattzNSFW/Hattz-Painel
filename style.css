@@ -3869,3 +3869,13 @@ body.has-animated-background:not(.has-card-background) .card-background-overlay 
 .avatar-frame.rarity-elite::before { opacity: .98; filter: drop-shadow(0 0 9px #c8a1ff) drop-shadow(0 0 16px rgba(164,105,235,.5)); }
 .avatar-frame.rarity-elite .ring-main { filter: drop-shadow(0 0 8px #c79bff); }
 .avatar-frame.rarity-elite .ornament { filter: drop-shadow(0 0 6px #e7d2ff); }
+
+
+/* Identidade oficial: selo distinto do VIP e do verificado. */
+.hattz-official-badge {
+  border: 1px solid #c9b5ff88;
+  color: #eadfff;
+  background: linear-gradient(115deg, #241a38, #49316f 52%, #21172f);
+  box-shadow: 0 0 12px #a78bfa30, inset 0 0 8px #e7d7ff12;
+  letter-spacing: .035em;
+}

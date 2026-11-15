@@ -958,9 +958,12 @@ function renderFrame() {
     <g class="frame-finishing-details">
       <circle class="frame-detail-ring" cx="95" cy="95" r="86" />
       <circle class="frame-detail-dots" cx="95" cy="95" r="66" />
-      <path class="frame-detail-ticks" d="M95 2v8 M95 180v8 M2 95h8 M180 95h8 M29 29l6 6 M155 155l6 6 M161 29l-6 6 M35 155l-6 6" />
-      <path class="frame-detail-star" d="M95 1l2.2 6.8L104 10l-6.8 2.2L95 19l-2.2-6.8L86 10l6.8-2.2Z M10 95l2.2 6.8L19 104l-6.8 2.2L10 113l-2.2-6.8L1 104l6.8-2.2Z M180 95l2.2 6.8L189 104l-6.8 2.2L180 113l-2.2-6.8L171 104l6.8-2.2Z" />
-      <circle class="frame-detail-stone" cx="30" cy="30" r="2"/><circle class="frame-detail-stone" cx="160" cy="30" r="2"/><circle class="frame-detail-stone" cx="30" cy="160" r="2"/><circle class="frame-detail-stone" cx="160" cy="160" r="2"/>
+      <circle class="frame-detail-inner" cx="95" cy="95" r="75" />
+      <path class="frame-detail-ticks" d="M95 2v8 M95 180v8 M2 95h8 M180 95h8 M29 29l6 6 M155 155l6 6 M161 29l-6 6 M35 155l-6 6 M60 12l4 8 M130 12l-4 8 M60 178l4-8 M130 178l-4-8 M12 60l8 4 M12 130l8-4 M178 60l-8 4 M178 130l-8-4" />
+      <path class="frame-detail-filigree" d="M95 5 C84 16 84 25 95 32 C106 25 106 16 95 5Z M95 185 C84 174 84 165 95 158 C106 165 106 174 95 185Z M5 95 C16 84 25 84 32 95 C25 106 16 106 5 95Z M185 95 C174 84 165 84 158 95 C165 106 174 106 185 95Z M35 35 Q48 20 61 34 Q49 31 45 48 Q42 39 35 35Z M155 35 Q142 20 129 34 Q141 31 145 48 Q148 39 155 35Z M35 155 Q48 170 61 156 Q49 159 45 142 Q42 151 35 155Z M155 155 Q142 170 129 156 Q141 159 145 142 Q148 151 155 155Z" />
+      <path class="frame-detail-star" d="M95 1l2.2 6.8L104 10l-6.8 2.2L95 19l-2.2-6.8L86 10l6.8-2.2Z M10 95l2.2 6.8L19 104l-6.8 2.2L10 113l-2.2-6.8L1 104l6.8-2.2Z M180 95l2.2 6.8L189 104l-6.8 2.2L180 113l-2.2-6.8L171 104l6.8-2.2Z M30 30l1.5 4.5L36 36l-4.5 1.5L30 42l-1.5-4.5L24 36l4.5-1.5Z M160 30l1.5 4.5L166 36l-4.5 1.5L160 42l-1.5-4.5L156 36l4.5-1.5Z M30 160l1.5 4.5L36 166l-4.5 1.5L30 172l-1.5-4.5L24 166l4.5-1.5Z M160 160l1.5 4.5L166 166l-4.5 1.5L160 172l-1.5-4.5L156 166l4.5-1.5Z" />
+      <circle class="frame-detail-stone" cx="30" cy="30" r="2.6"/><circle class="frame-detail-stone" cx="160" cy="30" r="2.6"/><circle class="frame-detail-stone" cx="30" cy="160" r="2.6"/><circle class="frame-detail-stone" cx="160" cy="160" r="2.6"/>
+      <circle class="frame-detail-stone" cx="95" cy="18" r="1.8"/><circle class="frame-detail-stone" cx="95" cy="172" r="1.8"/><circle class="frame-detail-stone" cx="18" cy="95" r="1.8"/><circle class="frame-detail-stone" cx="172" cy="95" r="1.8"/>
     </g>`;
   frame.innerHTML = FRAMES[artwork].replace("</svg>", `${finishingDetails}</svg>`);
 
@@ -1002,7 +1005,8 @@ function renderIdentity() {
   const verifiedColor = /^#[0-9a-f]{6}$/i.test(profile.verificadoCor || "")
     ? profile.verificadoCor
     : DEFAULT_PROFILE.verificadoCor;
-  verifiedBadge.hidden = !profile.verificado;
+  // A verificação é um benefício remoto: nunca confiar no JSON editável do perfil.
+  verifiedBadge.hidden = true;
   verifiedBadge.style.setProperty("--verified-color", verifiedColor);
   document.querySelector(".profile-card")?.classList.toggle("effects-enabled", profile.efeitosPerfil !== false);
   $("footerText").textContent = profile.rodape || "";
@@ -1091,6 +1095,8 @@ async function loadPublicEntitlements() {
     const response = await fetch(`${api}/api/profiles/${encodeURIComponent(normalizePublicCode(SHARED_PROFILE_CODE))}/entitlements`, { cache: "no-store" });
     if (!response.ok) return;
     const data = await response.json();
+    const verifiedBadge = $("verifiedBadge");
+    verifiedBadge.hidden = data.vip !== true;
     const badges = $("badges");
     if (data.vip) {
       const vip = document.createElement("span");
@@ -2036,14 +2042,6 @@ function resetThemeColors() {
   showToast("Cores originais restauradas.");
 }
 
-function resetVerifiedColor() {
-  profile.verificadoCor = DEFAULT_PROFILE.verificadoCor;
-  $("verifiedColor").value = DEFAULT_PROFILE.verificadoCor;
-  renderIdentity();
-  saveProfile();
-  showToast("Cor original do selo restaurada.");
-}
-
 function resetFrameAppearance() {
   profile.moldura = DEFAULT_PROFILE.moldura;
   profile.raridadeMoldura = DEFAULT_PROFILE.raridadeMoldura;
@@ -2561,8 +2559,6 @@ function fillEditor() {
   $("editUsername").value = profile.usuario;
   $("editBio").value = profile.bio;
   $("editRole").value = profile.cargo || "";
-  $("editVerified").checked = profile.verificado;
-  $("verifiedColor").value = profile.verificadoCor || DEFAULT_PROFILE.verificadoCor;
   $("editBadges").value = profile.insignias.join(", ");
   $("editFooter").value = profile.rodape;
   $("bannerHeadingVisible").checked = profile.bannerHeadingVisible !== false;
@@ -2635,8 +2631,6 @@ function readIdentityEditor() {
   profile.usuario = normalizeUsername($("editUsername").value);
   profile.bio = $("editBio").value.trim();
   profile.cargo = $("editRole").value;
-  profile.verificado = $("editVerified").checked;
-  profile.verificadoCor = $("verifiedColor").value;
 
   profile.insignias = [...new Set($("editBadges").value
     .split(",")
@@ -3513,12 +3507,6 @@ function setupEvents() {
     });
   });
 
-  $("verifiedColor").addEventListener("input", (event) => {
-    profile.verificadoCor = event.target.value;
-    renderIdentity();
-    saveProfile();
-  });
-
   $("saveProfile").addEventListener("click", saveChanges);
   $("resetProfile").addEventListener("click", resetProfile);
   $("resetAppearance").addEventListener("click", () => {
@@ -3529,7 +3517,6 @@ function setupEvents() {
     button.addEventListener("click", () => resetThemeColor(button.dataset.resetColor));
   });
   $("resetFont").addEventListener("click", resetFont);
-  $("resetVerifiedColor").addEventListener("click", resetVerifiedColor);
   $("resetFrameAppearance").addEventListener("click", resetFrameAppearance);
   $("resetDividerAppearance").addEventListener("click", resetDividerAppearance);
   $("resetMusicPlayerPlacement").addEventListener("click", resetMusicPlayerPlacement);

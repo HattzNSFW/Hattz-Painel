@@ -7,8 +7,19 @@
   const note = document.querySelector("#noteText");
   const close = document.querySelector("#closeNote");
   const cards = [...document.querySelectorAll(".moment-card")];
+  const candle = document.querySelector("#candleButton");
+  const flame = document.querySelector("#flame");
+  const cakeHint = document.querySelector("#cakeHint");
 
   begin?.addEventListener("click", () => letter?.scrollIntoView({behavior:"smooth",block:"start"}));
+  candle?.addEventListener("click", () => {
+    const isOut = candle.classList.toggle("is-out");
+    candle.setAttribute("aria-label", isOut ? "Acender a vela" : "Apagar a vela");
+    if (flame) flame.setAttribute("aria-hidden", String(isOut));
+    if (cakeHint) cakeHint.innerHTML = isOut
+      ? "pedido feito. que esse ano seja lindo <span>♡</span>"
+      : "faz um pedido e apaga a vela <span>↗</span>";
+  });
   back?.addEventListener("click", () => window.scrollTo({top:0,behavior:"smooth"}));
 
   cards.forEach(card => card.addEventListener("click", () => {

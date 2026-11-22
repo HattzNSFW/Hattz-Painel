@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#17111f">
+<title>Feliz aniversário, amorzinho ♡</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap');
+:root{--ink:#21192a;--muted:#766b7f;--plum:#72508e;--lilac:#d8c5ec;--pink:#f3dce7;--cream:#fffaf6;--line:#e8dce9}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:"DM Sans",sans-serif;overflow-x:hidden}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.22;background-image:radial-gradient(#a88db8 1px,transparent 1px);background-size:24px 24px;mask-image:linear-gradient(to bottom,black,transparent 75%);z-index:-1}
+a{color:inherit}.wrap{width:min(1100px,calc(100% - 36px));margin:auto}
+nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:#87788b}
+.brand{font-weight:700;color:var(--plum)}.nav-note{border:1px solid var(--line);border-radius:99px;padding:9px 14px;background:#fff9}
+.hero{min-height:80vh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:30px;padding:42px 0 70px}
+.kicker{display:inline-flex;align-items:center;gap:8px;background:#f3e9f7;border:1px solid #e7d8ee;border-radius:99px;padding:9px 14px;font-size:.78rem;color:#765a8a}
+h1{font:500 clamp(3.2rem,7vw,6.6rem)/.98 "Playfair Display",serif;letter-spacing:-.055em;margin:24px 0 22px}
+h1 em{color:#8b63a6;font-weight:500}.lead{max-width:470px;color:#7c7181;line-height:1.8;font-size:1.02rem}
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}.btn{border:0;border-radius:99px;padding:14px 20px;font:600 .9rem "DM Sans";cursor:pointer;transition:.2s}.btn:hover{transform:translateY(-2px)}.primary{background:#6f4d87;color:white;box-shadow:0 10px 24px #76528b30}.secondary{background:white;border:1px solid var(--line);color:#765a8a}
+.art{position:relative;min-height:480px;display:grid;place-items:center}.blob{position:absolute;width:min(440px,100%);aspect-ratio:1;border-radius:48% 52% 43% 57%/52% 44% 56% 48%;background:linear-gradient(145deg,#f4e6f0,#e1d1f1 55%,#c7b1dd);transform:rotate(-8deg);box-shadow:inset 15px 18px 50px #fff9,0 35px 80px #8b6c9c22}
+.polaroid{position:relative;width:min(290px,75%);padding:13px 13px 48px;background:#fffdfb;box-shadow:0 20px 60px #4d36552b;transform:rotate(5deg);border:1px solid #fff}
+.photo-placeholder{aspect-ratio:4/5;background:linear-gradient(145deg,#f7e9f0,#e4d9ef);display:grid;place-items:center;text-align:center;color:#987ca7;padding:22px;font-size:.9rem;line-height:1.7}
+.photo-placeholder b{display:block;font-size:2.5rem;margin-bottom:10px}.polaroid small{position:absolute;bottom:15px;left:0;right:0;text-align:center;font:italic 1.15rem "Playfair Display";color:#80658e}
+.sticker{position:absolute;font-size:2rem;filter:drop-shadow(0 4px 8px #6f4d8720);animation:float 4s ease-in-out infinite}.s1{top:12%;left:8%}.s2{right:4%;top:23%;animation-delay:-1s}.s3{bottom:12%;left:14%;animation-delay:-2s}.s4{bottom:18%;right:7%;animation-delay:-.5s}
+@keyframes float{50%{transform:translateY(-12px) rotate(7deg)}}
+.section{padding:72px 0}.section-head{text-align:center;max-width:620px;margin:0 auto 34px}.eyebrow{text-transform:uppercase;letter-spacing:.18em;font-size:.72rem;color:#9a7daa;font-weight:700}.section h2{font:500 clamp(2rem,4vw,3.5rem)/1.1 "Playfair Display";margin:12px 0}.section-head p{color:var(--muted);line-height:1.8}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:#fffdfb;border:1px solid var(--line);border-radius:22px;padding:24px;min-height:180px;box-shadow:0 12px 35px #4d36550a}.card .emoji{font-size:1.6rem}.card h3{font:500 1.35rem "Playfair Display";margin:15px 0 8px}.card p{color:var(--muted);line-height:1.7;font-size:.9rem;margin:0}
+.distance{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;background:#f4ebf6;border:1px solid #e9d9ee;border-radius:28px;padding:30px;text-align:center}.place{font:500 1.6rem "Playfair Display"}.place small{display:block;font:500 .75rem "DM Sans";letter-spacing:.1em;text-transform:uppercase;color:#927c9e;margin-top:8px}.heartline{color:#9a75ad;font-size:1.4rem;display:flex;align-items:center;gap:9px}.heartline:before,.heartline:after{content:"";height:1px;width:34px;background:#cbb7d7}
+.gallery{display:grid;grid-template-columns:1.1fr .9fr .9fr;gap:14px}.gallery-slot{min-height:250px;border:1px dashed #cdb8d8;border-radius:22px;background:linear-gradient(145deg,#fbf2f8,#f0e8f7);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;color:#927ba0;line-height:1.7}.gallery-slot:first-child{min-height:340px}.gallery-slot b{display:block;font-size:1.8rem;margin-bottom:10px}
+.letter{background:#21192a;color:#fff8ff;border-radius:30px;padding:clamp(28px,6vw,64px);position:relative;overflow:hidden}.letter:after{content:"♡";position:absolute;right:25px;top:-35px;font:15rem "Playfair Display";color:#ffffff08}.letter h2{font:500 clamp(2rem,5vw,3.8rem) "Playfair Display";margin:12px 0}.letter p{max-width:700px;color:#e2d6e7;line-height:1.9}.letter .signature{font:italic 1.5rem "Playfair Display";color:#d9c1eb;margin-top:26px}
+footer{text-align:center;padding:48px 0 36px;color:#a18ea9;font-size:.78rem;letter-spacing:.08em}
+#secret{display:none;margin-top:20px;padding:22px;border-radius:18px;background:#fff8ff;color:#6c4a7c;line-height:1.8}#secret.show{display:block;animation:fade .5s ease}@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.confetti{position:fixed;top:-12px;z-index:10;pointer-events:none;animation:fall 2.8s linear forwards;font-size:18px}@keyframes fall{to{transform:translateY(110vh) rotate(650deg);opacity:0}}
+@media(max-width:760px){.hero{grid-template-columns:1fr;padding-top:35px;min-height:auto}.hero-copy{text-align:center}.lead{margin:auto}.actions{justify-content:center}.art{min-height:390px}.grid{grid-template-columns:1fr}.gallery{grid-template-columns:1fr 1fr}.gallery-slot:first-child{grid-column:span 2;min-height:280px}.distance{padding:22px 12px;gap:8px}.place{font-size:1.2rem}.heartline:before,.heartline:after{width:12px}.section{padding:52px 0}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav><span class="brand">♡ um pedacinho nosso</span><span class="nav-note">22 · 11 · 2026</span></nav>
+<main>
+<section class="hero">
+<div class="hero-copy">
+<span class="kicker">✦ hoje é o seu dia, amorzinho</span>
+<h1>Feliz vida,<br><em>Bruna.</em></h1>
+<p class="lead">Mesmo com um oceano entre a gente, você continua sendo meu lugar favorito. Fiz esse cantinho só seu — com carinho, saudade e um tantinho de magia.</p>
+<div class="actions"><button class="btn primary" onclick="document.querySelector('#carta').scrollIntoView({behavior:'smooth'})">Abrir sua cartinha ♡</button><button class="btn secondary" onclick="celebrate()">um beijo de longe ✨</button></div>
+</div>
+<div class="art" aria-label="Cartão ilustrado de aniversário"><div class="blob"></div><span class="sticker s1">♡</span><span class="sticker s2">✦</span><span class="sticker s3">🎀</span><span class="sticker s4">☁️</span>
+<div class="polaroid"><div class="photo-placeholder"><div><b>♡</b>Um espacinho<br>reservado pra uma<br>foto sua favorita</div></div><small>my favorite person</small></div>
+</div>
+</section>
+<section class="section">
+<div class="section-head"><span class="eyebrow">um amor em dois cantinhos</span><h2>O mundo é enorme.<br>Meu carinho chega aí.</h2><p>Brasil e Portugal no mapa, mas pertinho em tudo que importa.</p></div>
+<div class="distance"><div class="place">Brasil<small>onde eu tô ♡</small></div><div class="heartline">♡</div><div class="place">Portugal<small>onde você tá ♡</small></div></div>
+</section>
+<section class="section">
+<div class="section-head"><span class="eyebrow">coisinhas que me lembram você</span><h2>Seu jeitinho é meu favorito.</h2><p>As pequenas coisas que deixam meus dias mais bonitos.</p></div>
+<div class="grid">
+<article class="card"><span class="emoji">🎀</span><h3>Seu lado fofinho</h3><p>Laços, coisinhas cute e esse seu jeitinho que dá vontade de guardar num potinho.</p></article>
+<article class="card"><span class="emoji">🖤</span><h3>Seu lado monstrinho</h3><p>Um toque de Kuromi, um pouquinho de caos e muito charme — igualzinho você.</p></article>
+<article class="card"><span class="emoji">🎧</span><h3>Nossa trilha sonora</h3><p>Tem música que parece abraço. E tem você, que é meu abraço favorito, mesmo de longe.</p></article>
+</div>
+</section>
+<section class="section">
+<div class="section-head"><span class="eyebrow">nossos momentos</span><h2>Memórias que atravessam telas.</h2><p>Até as partidas e as prints bobinhas viram lembranças que eu amo.</p></div>
+<div class="gallery">
+<div class="gallery-slot"><div><b>🎮</b>Coloque aqui uma print<br>de vocês jogando</div></div>
+<div class="gallery-slot"><div><b>♡</b>Uma foto dela<br>que você ama</div></div>
+<div class="gallery-slot"><div><b>✦</b>Mais um momento<br>de vocês</div></div>
+</div>
+</section>
+<section class="section" id="carta">
+<div class="letter"><span class="eyebrow" style="color:#c6a6dc">pra minha amorzinha</span><h2>Uma cartinha pra você.</h2>
+<p>Feliz aniversário, meu amorzinho. ♡</p>
+<p>Queria muito poder estar aí hoje, te dar um abraço bem apertado, encher seu dia de beijinhos e ver seu sorriso de pertinho. Mas, mesmo de tão longe, espero que você sinta o quanto é amada.</p>
+<p>Obrigado por fazer parte dos meus dias, por cada conversa, cada risada, cada partida e cada momento nosso. Você deixa tudo mais leve e especial. Que seu novo ciclo seja cheio de coisas lindas, músicas boas, sonhos realizados e motivos pra sorrir — e que eu possa estar em muitos deles.</p>
+<p>Até a distância fica pequena quando penso em você. Hoje e sempre, eu torço por você, cuido de você do meu jeito e escolho você. Feliz vida, Bruna. Te amo, minha amorzinha.</p>
+<div class="signature">com todo meu amor, seu amorzinho ♡</div>
+<button class="btn secondary" style="margin-top:24px" onclick="reveal()">tem mais uma coisinha…</button>
+<div id="secret">Se eu pudesse te dar uma coisa hoje, seria a chance de se enxergar pelos meus olhos — só pra você entender o quanto é especial pra mim. E um abraço que compensasse todos os que a distância roubou. ♡</div>
+</div>
+</section>
+</main>
+<footer>feito com carinho, de um país pro outro · 22.11.2026 ♡</footer>
+</div>
+<script>
+function reveal(){document.getElementById('secret').classList.toggle('show')}
+function celebrate(){const bits=['♡','✦','🎀','💜','✨'];for(let i=0;i<34;i++){const e=document.createElement('span');e.className='confetti';e.textContent=bits[Math.floor(Math.random()*bits.length)];e.style.left=Math.random()*100+'vw';e.style.animationDelay=Math.random()*.8+'s';e.style.fontSize=(14+Math.random()*18)+'px';document.body.appendChild(e);setTimeout(()=>e.remove(),3500)}}
+</script>
+</body></html>

@@ -9,3 +9,5 @@
 @media(max-width:700px){.intro{grid-template-columns:1fr;gap:0;padding:55px 0 80px;min-height:auto}.intro-copy{order:0}.drawing{order:1;height:320px}.gift{transform:scale(.85) rotate(-5deg)}.drawing-caption{bottom:13px}.page-mark{bottom:25px}.intro h1{font-size:clamp(58px,13vw,78px)}.letter-section{padding-top:38px}.letter{margin:45px auto;font-size:14px}.little-section{padding-bottom:75px}}
 @media(max-width:420px){.site-header{height:62px;padding:0 20px}.header-date{font-size:8px}.intro,.letter-section,.little-section{width:calc(100% - 40px)}.intro{padding-top:45px}.intro-text{font-size:13px}.drawing{height:285px}.gift{transform:scale(.76) rotate(-5deg)}.letter-top{gap:15px;font-size:7px}.letter{line-height:1.95}.little-note{padding:24px 20px}footer{padding-inline:20px;gap:8px;font-size:7px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+.gift-lid{transition:transform .45s cubic-bezier(.2,.8,.2,1)}.gift.opened .gift-lid{transform:translateY(-42px) rotate(-12deg)}.gift-box{transition:filter .3s}.gift.opened .gift-box{filter:brightness(1.08)}

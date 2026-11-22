@@ -1,54 +1,60 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#17151b">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#110f16">
 <title>4MyBaby — Bruna</title>
 <style>
-:root{color-scheme:dark;--bg:#17151b;--panel:#211d26;--paper:#f4edf1;--muted:#b9acba;--rose:#d9aebe;--line:#443844}
+:root{color-scheme:dark;--ink:#f8eef5;--muted:#b7a9bb;--pink:#efb9d1;--lilac:#b7a8e8;--bg:#110f16}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--paper);font-family:Arial,Helvetica,sans-serif}
-main{width:min(1080px,calc(100% - 40px));margin:auto}
-header{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;color:#bbaebb;letter-spacing:.08em}
-.brand{font-weight:700;color:#f4edf1}
-.hero{min-height:calc(100svh - 77px);display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:clamp(30px,7vw,100px);padding:70px 0}
-.overline{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose)}
-h1{font:400 clamp(64px,10vw,132px)/.88 Georgia,serif;letter-spacing:-.065em;margin:26px 0 32px}
-h1 span{display:block;color:var(--rose);font-style:italic;margin-left:10%}
-.message{max-width:490px;font-size:16px;line-height:1.85;color:#d3c8d3}
-.message p{margin:0 0 18px}
-.date{margin-top:42px;color:#8f808f;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
-.art{position:relative;min-height:440px;display:grid;place-items:center}
-.shape{position:absolute;width:min(390px,100%);aspect-ratio:1;border-radius:48% 52% 60% 40% / 48% 43% 57% 52%;background:linear-gradient(145deg,#d9b8c9,#a68bb8);transform:rotate(-12deg)}
-.shape:after{content:"";position:absolute;inset:14px;border:1px solid #ffffff80;border-radius:inherit}
-.initial{position:relative;color:#332631;font:italic clamp(120px,18vw,230px)/1 Georgia,serif;letter-spacing:-.1em;transform:translate(-8px,-8px)}
-.side-note{position:absolute;bottom:4%;right:0;color:#bbaebb;font:italic 14px Georgia,serif;transform:rotate(-7deg)}
-.rule{height:1px;background:var(--line)}
-.closing{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 0 34px;color:#a99ba9;font-size:12px}
-.closing strong{font-weight:400;color:var(--rose)}
-@media(max-width:700px){main{width:min(100% - 32px,520px)}header{height:64px}.hero{min-height:auto;grid-template-columns:1fr;gap:8px;padding:64px 0 48px}.hero-copy{order:1}.art{order:0;min-height:260px}.shape{width:230px}.initial{font-size:140px}h1{font-size:clamp(66px,17vw,100px);margin:22px 0 28px}.message{font-size:15px}.date{margin-top:28px}.side-note{bottom:0;right:8%}.closing{align-items:flex-start;flex-direction:column;gap:10px}}
-@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+html{scroll-behavior:smooth}
+body{margin:0;min-height:100vh;overflow-x:hidden;background:radial-gradient(ellipse at 75% 20%,#39253d 0,transparent 34%),radial-gradient(ellipse at 15% 85%,#28203c 0,transparent 38%),var(--bg);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.15;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");z-index:5}
+header{width:min(1240px,calc(100% - 64px));height:82px;margin:auto;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #ffffff19;color:#c9bacd;font-size:11px;letter-spacing:.18em;text-transform:uppercase}
+.brand{color:var(--ink);font-weight:700;letter-spacing:.14em}.edition{display:flex;align-items:center;gap:12px}.dot{width:5px;height:5px;border-radius:50%;background:var(--pink);box-shadow:0 0 12px var(--pink)}
+main{width:min(1240px,calc(100% - 64px));margin:auto}.hero{min-height:calc(100svh - 82px);display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:5vw;padding:58px 0 70px}
+.copy{position:relative;z-index:2;padding:0 0 20px}.eyebrow{display:flex;align-items:center;gap:14px;color:var(--pink);font-size:10px;letter-spacing:.24em;text-transform:uppercase}.eyebrow:before{content:"";width:34px;height:1px;background:var(--pink)}
+h1{font:400 clamp(76px,11vw,154px)/.79 Georgia,serif;letter-spacing:-.085em;margin:35px 0 36px}h1 span{display:block;color:var(--pink);font-style:italic;margin:18px 0 0 12%}
+.message{max-width:420px;color:#d4c7d6;font-size:15px;line-height:1.9}.message p{margin:0 0 14px}.signoff{margin-top:28px;color:#9e8ba4;font:italic 16px Georgia,serif}
+.stage{min-height:570px;position:relative;display:grid;place-items:center;perspective:1000px;isolation:isolate}
+halo{display:block}
+.glow{position:absolute;width:80%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#d9a8ca42 0, #a68be81c 38%,transparent 70%);filter:blur(16px);animation:breathe 6s ease-in-out infinite}
+.orbit{position:absolute;width:min(440px,90%);aspect-ratio:1;border:1px solid #f5d5e51c;border-radius:50%;transform:rotate(-22deg) scaleY(.78);animation:spin 34s linear infinite}
+.orbit:before,.orbit:after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:#f7cce2;box-shadow:0 0 20px 5px #e5a8d344}.orbit:before{top:15%;left:17%}.orbit:after{right:8%;bottom:26%;width:4px;height:4px}
+.art-card{position:relative;width:min(350px,75%);aspect-ratio: .78;display:grid;place-items:center;transform-style:preserve-3d;transition:transform .18s ease;cursor:pointer;outline:none}
+.art-card:focus-visible{outline:2px solid var(--pink);outline-offset:10px}
+.card-shadow{position:absolute;inset:7% -5% -4% 5%;background:#09070d;filter:blur(26px);opacity:.7;border-radius:48% 48% 42% 42%}
+.card-face{position:absolute;inset:0;overflow:hidden;border:1px solid #ffffff45;border-radius:48% 48% 44% 44%;background:linear-gradient(155deg,#f2c7da 0%,#c8a8d3 42%,#7d6c9f 100%);box-shadow:inset 0 1px 0 #fff9,inset 0 -40px 70px #35244455,0 25px 90px #0007}
+.card-face:before{content:"";position:absolute;inset:12px;border:1px solid #ffffff67;border-radius:inherit}
+.card-face:after{content:"";position:absolute;inset:-50% -20%;background:linear-gradient(110deg,transparent 38%,#ffffff45 49%,transparent 60%);transform:translateX(-70%) rotate(8deg);transition:transform .9s ease}
+.art-card:hover .card-face:after,.art-card:focus-visible .card-face:after{transform:translateX(70%) rotate(8deg)}
+.card-top{position:absolute;top:34px;left:0;right:0;text-align:center;color:#473449;font-size:9px;letter-spacing:.28em;text-transform:uppercase}
+.big-b{position:relative;z-index:1;color:#493344;font:italic clamp(150px,22vw,260px)/1 Georgia,serif;letter-spacing:-.12em;text-shadow:0 2px 0 #ffffff55;transform:translateX(-.06em)}
+.card-bottom{position:absolute;bottom:34px;left:0;right:0;text-align:center;color:#493449;font:italic 16px Georgia,serif}
+.spark{position:absolute;color:#f5d5e8;text-shadow:0 0 20px #efb9d1aa;animation:float 5s ease-in-out infinite}.s1{top:13%;left:10%;font-size:21px}.s2{top:22%;right:7%;font-size:13px;animation-delay:-2s}.s3{bottom:17%;left:13%;font-size:14px;animation-delay:-3s}.s4{bottom:10%;right:15%;font-size:23px;animation-delay:-1s}
+.tap-hint{position:absolute;bottom:3%;left:50%;transform:translateX(-50%);white-space:nowrap;color:#b8a8bc;font-size:10px;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;gap:10px}.tap-hint:before,.tap-hint:after{content:"";width:22px;height:1px;background:#b8a8bc55}
+.reveal{position:absolute;inset:0;z-index:4;display:grid;place-items:center;pointer-events:none;opacity:0;transition:opacity .35s ease}.reveal span{max-width:290px;padding:20px 24px;border:1px solid #ffffff25;border-radius:18px;background:#1c1725eF;box-shadow:0 20px 80px #0008;text-align:center;color:#f8e8f1;font:italic 22px/1.4 Georgia,serif;transform:translateY(12px) scale(.96);transition:transform .4s ease}.stage.open .reveal{opacity:1}.stage.open .reveal span{transform:translateY(0) scale(1)}.stage.open .art-card{filter:brightness(.7);transform:scale(.94)!important}
+footer{border-top:1px solid #ffffff19;padding:24px 0 30px;display:flex;justify-content:space-between;gap:20px;color:#8f8194;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
+#confetti{position:fixed;inset:0;z-index:10;pointer-events:none;overflow:hidden}.piece{position:absolute;top:-20px;width:6px;height:10px;background:var(--c);animation:fall var(--t) linear forwards;opacity:.9}
+@keyframes spin{to{transform:rotate(338deg) scaleY(.78)}}@keyframes breathe{50%{transform:scale(1.12);opacity:.7}}@keyframes float{50%{transform:translateY(-12px) rotate(8deg)}}@keyframes fall{to{transform:translate3d(var(--x),110vh,0) rotate(760deg);opacity:0}}
+@media(max-width:760px){header,main{width:calc(100% - 36px)}header{height:66px}.hero{grid-template-columns:1fr;gap:0;padding:30px 0 48px}.stage{min-height:390px;grid-row:1}.art-card{width:min(250px,68%)}.orbit{width:min(330px,92%)}.big-b{font-size:190px}.copy{padding:0 2px}.eyebrow{font-size:9px}h1{font-size:clamp(78px,19vw,120px);margin:28px 0 30px}.message{font-size:14px;max-width:520px}.signoff{margin-top:20px}.tap-hint{bottom:0}.stage.open .reveal span{max-width:260px;font-size:20px}footer{font-size:9px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
-<main>
-<header><span class="brand">4MyBaby</span><span>22 / 11 / 2026</span></header>
-<section class="hero">
-<div class="hero-copy">
-<div class="overline">feliz aniversário</div>
-<h1>Bruna<span>♡</span></h1>
-<div class="message">
-<p>Queria muito estar aí hoje pra comemorar com você. Como não dá, fiz esse cantinho pra você ter alguma coisa minha aí, mesmo de longe.</p>
-<p>Espero que seu dia seja muito bom e que você se sinta querida, porque você é. Gosto de tudo que a gente divide — as conversas, as músicas, jogar junto e até ficar sem fazer nada.</p>
-<p>Te amo. Feliz aniversário, meu amor.</p>
-</div>
-<div class="date">Brasil · Portugal</div>
-</div>
-<div class="art" aria-hidden="true"><div class="shape"></div><div class="initial">B</div><div class="side-note">pra você, com carinho</div></div>
-</section>
-<div class="rule"></div>
-<footer class="closing"><span>4MyBaby</span><span><strong>22.11.2026</strong> · feito pra Bruna</span></footer>
-</main>
-</body>
-</html>
+<header><span class="brand">4MyBaby</span><span class="edition"><i class="dot"></i> uma página pra Bruna</span><span>22 · 11 · 2026</span></header>
+<main><section class="hero">
+<div class="copy"><div class="eyebrow">hoje é seu dia</div><h1>Feliz<br><span>aniversário,</span><br>Bruna.</h1>
+<div class="message"><p>Queria muito estar aí pra comemorar com você. Fiz esse cantinho pra você ter um pedacinho meu por perto, mesmo de longe.</p><p>Espero que hoje você se sinta tão querida quanto é. Amo nossas conversas, nossas músicas, jogar junto e até os momentos sem fazer nada.</p><p>Te amo. Feliz aniversário, meu amor.</p></div><div class="signoff">com todo meu carinho ♡</div></div>
+<div class="stage" id="stage"><div class="glow"></div><div class="orbit"></div><span class="spark s1">✦</span><span class="spark s2">✧</span><span class="spark s3">✧</span><span class="spark s4">✦</span>
+<div class="art-card" id="art" role="button" tabindex="0" aria-label="Toque para revelar uma surpresa"><div class="card-shadow"></div><div class="card-face"><div class="card-top">feito especialmente pra você</div><div class="big-b">B</div><div class="card-bottom">um abraço daqui ♡</div></div></div>
+<div class="reveal" id="reveal" aria-live="polite"><span>Que seu novo ano venha cheio de coisas boas. Você merece. ♡</span></div><div class="tap-hint">toque na arte</div></div>
+</section><footer><span>4MyBaby · Bruna</span><span>feito com amor, de longe</span></footer></main><div id="confetti" aria-hidden="true"></div>
+<script>
+const stage=document.querySelector('#stage'),art=document.querySelector('#art'),confetti=document.querySelector('#confetti');
+function toggle(){const open=stage.classList.toggle('open');if(open)burst();}
+art.addEventListener('click',toggle);art.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+stage.addEventListener('pointermove',e=>{if(matchMedia('(prefers-reduced-motion: reduce)').matches||innerWidth<760)return;const r=stage.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;art.style.transform='rotateY('+x*9+'deg) rotateX('+(-y*8)+'deg)';});
+stage.addEventListener('pointerleave',()=>{art.style.transform='';});
+function burst(){const colors=['#f4bfd8','#d7c1f2','#fff0f7','#c7b5ec'];for(let i=0;i<44;i++){const p=document.createElement('i');p.className='piece';p.style.left=Math.random()*100+'%';p.style.setProperty('--c',colors[i%colors.length]);p.style.setProperty('--t',(2.2+Math.random()*2.2)+'s');p.style.setProperty('--x',(Math.random()*240-120)+'px');p.style.animationDelay=(Math.random()*.45)+'s';confetti.appendChild(p);setTimeout(()=>p.remove(),5000);}}
+</script>
+</body></html>

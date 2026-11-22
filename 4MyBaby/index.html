@@ -2,96 +2,53 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#19171c">
-<title>4MyBaby ♡</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#17151b">
+<title>4MyBaby — Bruna</title>
 <style>
-:root{--bg:#19171c;--paper:#f4edf0;--ink:#27212a;--muted:#827680;--pink:#e7c7d2;--lilac:#cfc2df;--line:#e4d8df}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--paper);font-family:Arial,Helvetica,sans-serif}
-.wrap{width:min(980px,calc(100% - 32px));margin:auto}
-header{display:flex;justify-content:space-between;align-items:center;padding:24px 0;color:#c7b9c5;font-size:12px;letter-spacing:.08em}
-.logo{font-weight:700;color:#f2dce6}
-.hero{display:grid;grid-template-columns:1fr .8fr;gap:20px;align-items:stretch;margin:28px 0 16px}
-.intro{background:var(--paper);color:var(--ink);padding:clamp(26px,5vw,58px);display:flex;flex-direction:column;justify-content:space-between;min-height:420px}
-.kicker{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a7282}
-h1{font:400 clamp(58px,9vw,104px)/.9 Georgia,serif;letter-spacing:-.07em;margin:48px 0 26px}
-h1 em{display:block;color:#a06f88;font-weight:400;margin-left:14%;font-style:italic}
-.intro p{max-width:390px;line-height:1.75;color:#665861;font-size:15px;margin:0}
-.small{font-size:11px;letter-spacing:.08em;color:#9a8793;margin-top:36px}
-.art{background:var(--pink);color:#6f4d60;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden}
-.art:before,.art:after{content:"";position:absolute;border:1px solid #ffffff80;border-radius:50%;width:280px;height:280px}
-.art:after{width:210px;height:210px}
-.mark{font:italic 100px Georgia,serif;z-index:1;line-height:1}
-.art p{z-index:1;margin:10px 0 0;font:italic 19px Georgia,serif}
-.tiny{z-index:1;font-size:10px;letter-spacing:.16em;text-transform:uppercase;margin-top:14px}
-.strip{background:var(--lilac);color:#39303e;margin:18px 0;padding:18px 22px;display:flex;justify-content:space-between;gap:12px;align-items:center}
-.strip p{margin:0;font:italic 18px Georgia,serif}.strip span{font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-.section{padding:62px 0 12px}
-.section-head{margin-bottom:22px}.eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:#c5a9c0}
-h2{font:400 clamp(34px,6vw,58px)/1 Georgia,serif;letter-spacing:-.04em;margin:12px 0}
-.section-head p{color:#b8aab5;line-height:1.7;font-size:14px;max-width:520px}
-.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.card{padding:22px;background:#242027;border:1px solid #38313a;min-height:155px}
-.card b{display:block;color:#e8cbd7;font:italic 24px Georgia,serif;margin-bottom:16px}
-.card h3{font-size:14px;margin:0 0 8px;font-weight:600}.card p{font-size:13px;line-height:1.65;color:#b8aab5;margin:0}
-.distance{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;padding:24px;background:#28232b;border:1px solid #3c333e;text-align:center}
-.place{font:italic 25px Georgia,serif}.place small{display:block;font:10px Arial,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#b8aab5;margin-top:8px}
-.heart{color:#e8cbd7;font-size:20px}
-.letter{background:var(--paper);color:var(--ink);padding:clamp(26px,6vw,62px);margin:64px 0 20px}
-.letter h2{font-size:clamp(36px,6vw,62px);margin:14px 0 24px}
-.letter p{font-size:15px;line-height:1.85;color:#5f525d;max-width:690px}
-.sign{font:italic 18px Georgia,serif;color:#93677e;margin-top:24px}
-footer{display:flex;justify-content:space-between;gap:12px;padding:24px 0 34px;color:#8e818c;font-size:11px;letter-spacing:.06em}
-button{border:0;background:#71556d;color:#fff;padding:13px 18px;font-size:13px;cursor:pointer;margin-top:16px}
-#extra{display:none;color:#755a6b;background:#ead8e0;padding:18px;line-height:1.7;margin-top:14px}#extra.show{display:block}
-@media(max-width:700px){.hero{grid-template-columns:1fr}.intro{min-height:360px}.art{min-height:250px}.art:before{width:220px;height:220px}.art:after{width:160px;height:160px}.cards{grid-template-columns:1fr}.section{padding-top:44px}.strip{align-items:flex-start;flex-direction:column}.distance{padding:20px 10px}.place{font-size:21px}footer{flex-direction:column}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+:root{color-scheme:dark;--bg:#17151b;--panel:#211d26;--paper:#f4edf1;--muted:#b9acba;--rose:#d9aebe;--line:#443844}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--paper);font-family:Arial,Helvetica,sans-serif}
+main{width:min(1080px,calc(100% - 40px));margin:auto}
+header{height:76px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);font-size:12px;color:#bbaebb;letter-spacing:.08em}
+.brand{font-weight:700;color:#f4edf1}
+.hero{min-height:calc(100svh - 77px);display:grid;grid-template-columns:1.1fr .9fr;align-items:center;gap:clamp(30px,7vw,100px);padding:70px 0}
+.overline{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--rose)}
+h1{font:400 clamp(64px,10vw,132px)/.88 Georgia,serif;letter-spacing:-.065em;margin:26px 0 32px}
+h1 span{display:block;color:var(--rose);font-style:italic;margin-left:10%}
+.message{max-width:490px;font-size:16px;line-height:1.85;color:#d3c8d3}
+.message p{margin:0 0 18px}
+.date{margin-top:42px;color:#8f808f;font-size:11px;letter-spacing:.15em;text-transform:uppercase}
+.art{position:relative;min-height:440px;display:grid;place-items:center}
+.shape{position:absolute;width:min(390px,100%);aspect-ratio:1;border-radius:48% 52% 60% 40% / 48% 43% 57% 52%;background:linear-gradient(145deg,#d9b8c9,#a68bb8);transform:rotate(-12deg)}
+.shape:after{content:"";position:absolute;inset:14px;border:1px solid #ffffff80;border-radius:inherit}
+.initial{position:relative;color:#332631;font:italic clamp(120px,18vw,230px)/1 Georgia,serif;letter-spacing:-.1em;transform:translate(-8px,-8px)}
+.side-note{position:absolute;bottom:4%;right:0;color:#bbaebb;font:italic 14px Georgia,serif;transform:rotate(-7deg)}
+.rule{height:1px;background:var(--line)}
+.closing{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 0 34px;color:#a99ba9;font-size:12px}
+.closing strong{font-weight:400;color:var(--rose)}
+@media(max-width:700px){main{width:min(100% - 32px,520px)}header{height:64px}.hero{min-height:auto;grid-template-columns:1fr;gap:8px;padding:64px 0 48px}.hero-copy{order:1}.art{order:0;min-height:260px}.shape{width:230px}.initial{font-size:140px}h1{font-size:clamp(66px,17vw,100px);margin:22px 0 28px}.message{font-size:15px}.date{margin-top:28px}.side-note{bottom:0;right:8%}.closing{align-items:flex-start;flex-direction:column;gap:10px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
-<div class="wrap">
-<header><span class="logo">4MyBaby ♡</span><span>22.11.2026</span></header>
 <main>
+<header><span class="brand">4MyBaby</span><span>22 / 11 / 2026</span></header>
 <section class="hero">
-<div class="intro">
-<div class="kicker">pra você</div>
-<div>
-<h1>feliz vida,<em>bruna.</em></h1>
-<p>feliz aniversário, Bruna. queria estar aí com você hoje, mas fiz isso aqui pra não deixar a data passar sem fazer alguma coisa.</p>
+<div class="hero-copy">
+<div class="overline">feliz aniversário</div>
+<h1>Bruna<span>♡</span></h1>
+<div class="message">
+<p>Queria muito estar aí hoje pra comemorar com você. Como não dá, fiz esse cantinho pra você ter alguma coisa minha aí, mesmo de longe.</p>
+<p>Espero que seu dia seja muito bom e que você se sinta querida, porque você é. Gosto de tudo que a gente divide — as conversas, as músicas, jogar junto e até ficar sem fazer nada.</p>
+<p>Te amo. Feliz aniversário, meu amor.</p>
 </div>
-<div class="small">BRASIL ↔ PORTUGAL · NÓS DOIS</div>
+<div class="date">Brasil · Portugal</div>
 </div>
-<div class="art"><div class="mark">♡</div><p>4 my baby</p><div class="tiny">feito por mim</div></div>
+<div class="art" aria-hidden="true"><div class="shape"></div><div class="initial">B</div><div class="side-note">pra você, com carinho</div></div>
 </section>
-<div class="strip"><p>feliz aniversário ♡</p><span>22 de novembro</span></div>
-
-<section class="section">
-<div class="section-head"><span class="eyebrow">mesmo de longe</span><h2>longe pra caramba,<br>mas faz parte.</h2><p>queria poder passar o dia com você. como não dá, fiz esse site mesmo.</p></div>
-<div class="distance"><div class="place">Brasil<small>Brasil</small></div><div class="heart">♡</div><div class="place">Portugal<small>Portugal</small></div></div>
-</section>
-
-<section class="section">
-<div class="section-head"><span class="eyebrow">coisas que eu gosto</span><h2>gosto de fazer isso com você.</h2><p>jogar, ouvir música e ficar conversando. essas coisas simples que eu gosto de fazer contigo.</p></div>
-<div class="cards">
-<article class="card"><b>01 / 🎮</b><h3>nossas partidas</h3><p>até quando a gente não faz nada no jogo, eu prefiro jogar contigo.</p></article>
-<article class="card"><b>02 / 🎧</b><h3>as músicas</h3><p>essas músicas acabam ficando com a nossa cara.</p></article>
-<article class="card"><b>03 / ♡</b><h3>você</h3><p>até quando você me irrita um pouquinho, gosto de você. infelizmente kkkkk.</p></article>
-</div>
-</section>
-
-<section class="letter" id="cartinha">
-<span class="eyebrow"></span>
-<h2>feliz aniversário, Bruna.</h2>
-<p>queria estar aí hoje pra comemorar contigo. espero que seu dia seja bom e que você consiga fazer tudo que queria.</p>
-<p>gosto muito de passar tempo com você, jogar junto e conversar sobre qualquer coisa. fico feliz de ter você na minha vida.</p>
-<p>aproveita seu dia, tá? espero que esse ano seja bom pra você. te amo.</p>
-<p>feliz aniversário ❤️</p>
-<div class="sign">de mim</div>
-<button type="button" onclick="document.getElementById('extra').classList.toggle('show')">mais uma coisa</button>
-<div id="extra">queria estar aí, mas fica pra próxima. ❤️</div>
-</section>
+<div class="rule"></div>
+<footer class="closing"><span>4MyBaby</span><span><strong>22.11.2026</strong> · feito pra Bruna</span></footer>
 </main>
-<footer><span>4MyBaby ♡</span><span>feito por mim, pra você</span></footer>
-</div>
 </body>
 </html>
